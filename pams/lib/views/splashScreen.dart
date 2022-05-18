@@ -1,27 +1,34 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:pams/providers/auth_provider.dart';
+import 'package:pams/providers/clients_data_provider.dart';
+import 'package:pams/utils/images.dart';
 import 'package:pams/views/authentication/auth.dart';
 import 'package:pams/views/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  GetStorage box = GetStorage();
   @override
   void initState() {
     _transitionToNextPageAfterSplash();
     super.initState();
-    _determinePosition();
+    // _determinePosition();
   }
 
   _transitionToNextPageAfterSplash() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('apiToken');
+    var token = box.read('token');
     return Timer(
       Duration(
         seconds: 3,
@@ -35,32 +42,34 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  // Future<Position> _determinePosition() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     return Future.error('Location services are disabled.');
+  //   }
 
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       return Future.error('Location permissions are denied');
+  //     }
+  //   }
 
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    return await Geolocator.getCurrentPosition();
-  }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     return Future.error(
+  //         'Location permissions are permanently denied, we cannot request permissions.');
+  //   }
+  //   return await Geolocator.getCurrentPosition();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    var _authViewModel = ref.watch(authViewModel);
+     var _clientViewmodel = ref.watch(clientViewModel);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -72,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
-                image: AssetImage("assets/logoo.png"),
+                image: AssetImage(appLogoIcon),
                 fit: BoxFit.fill,
               ),
             ),

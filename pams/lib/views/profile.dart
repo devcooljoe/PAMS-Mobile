@@ -1,33 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/images.dart';
 import 'package:pams/utils/shared_pref_manager.dart';
 import 'package:pams/views/authentication/auth.dart';
 import 'package:pams/views/editemail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  String name = '';
-  String role = '';
-  String email = '';
-
-  _ProfilePageState() {
-    Prefs.instance.getStringValue("fullname").then((value) => setState(() {
-          name = value;
-        }));
-    Prefs.instance.getStringValue("role").then((value) => setState(() {
-          role = value;
-        }));
-    Prefs.instance.getStringValue("email").then((value) => setState(() {
-          email = value;
-        }));
-  }
+class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
+    var _authViewModel = ref.watch(authViewModel);
+    var user = _authViewModel.userData.data!.returnObject;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -55,15 +47,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: 90,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/avatar.png")),
+                        fit: BoxFit.cover, image: AssetImage(userAvatar)),
                     border: Border.all(
                       style: BorderStyle.solid,
                       width: 6.0,
                     ),
                     shape: BoxShape.circle),
               ),
-              Text("$name",
+              Text(user!.fullname!,
                   style: TextStyle(
                     fontSize: 30,
                   )),
@@ -86,11 +77,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ], color: Colors.white),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text("$name",
+                      Text(user.fullname!,
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -119,11 +111,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ], color: Colors.white),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text("$role",
+                      Text(user.role![0],
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -165,7 +158,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text("$email",
+                            Text(user.email!,
                                 style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,

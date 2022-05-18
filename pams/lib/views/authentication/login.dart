@@ -1,30 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pams/providers/auth_provider.dart';
+import 'package:pams/providers/provider_services.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/svg_images.dart';
 import 'package:pams/utils/validators.dart';
 import 'package:pams/views/authentication/forgotpassword.dart';
 import 'package:pams/views/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   bool btnState = false;
   var scaffoldKey = GlobalKey<ScaffoldState>();
-  bool autoValidate = false;
+
   TextEditingController _emailTextController = TextEditingController();
   TextEditingController _passwordTextController = TextEditingController();
   bool hide = true;
   @override
   Widget build(BuildContext context) {
+    var _authViewModel = ref.watch(authViewModel);
+    var _loading = ref.watch(loadingState);
     return Scaffold(
       backgroundColor: Color(0xff194A00),
       body: ListView(
@@ -37,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: SvgPicture.asset(
-                    'assets/login_img.svg',
+                    secondTopLeftLogoIcon,
                     height: 300,
                     width: 500,
                   ),
@@ -162,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 15),
                                 child: Center(
-                                  child: btnState
+                                  child: _loading
                                       ? SizedBox(
                                           height: 20,
                                           width: 20,
@@ -180,7 +186,14 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             onTap: () async {
-                              validateInputs();
+                              _loading = true;
+                              final _validate =
+                                  _authViewModel.validateAndSave(_formKey);
+                              if (_validate) {
+                                _authViewModel.userLoginService(
+                                    email: _emailTextController.text,
+                                    password: _passwordTextController.text);
+                              }
                             }),
                         SizedBox(
                           height: 10,
@@ -198,17 +211,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   validateInputs() async {
+    var _authViewModel = ref.watch(authViewModel);
     setState(() {
       btnState = true;
     });
     var state = _formKey.currentState;
     if (!state!.validate()) {
-      setState(() {
-        autoValidate = true;
-        btnState = false;
-      });
     } else {
       state.save();
+      _authViewModel.userLoginService(
+          email: _emailTextController.text,
+          password: _passwordTextController.text);
+      setState(() {
+        btnState = false;
+      });
     }
   }
 }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pams/models/add_location_request_model.dart';
+import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/utils/constants.dart';
 import 'package:pams/styles/custom_colors.dart';
-import 'package:pams/views/clients/location/implementation.dart';
-import 'package:pams/views/clients/location/model/add_location_request_model.dart';
 
-import 'model/get_location_response.dart';
-
-class AddLocation extends StatefulWidget {
+class AddLocation extends ConsumerStatefulWidget {
   final String? name;
   final String? description;
   final String? clientID;
@@ -15,10 +14,10 @@ class AddLocation extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AddLocationState createState() => _AddLocationState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _AddLocationState();
 }
 
-class _AddLocationState extends State<AddLocation> {
+class _AddLocationState extends ConsumerState<AddLocation> {
   TextEditingController name = TextEditingController();
   TextEditingController description = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,6 +28,7 @@ class _AddLocationState extends State<AddLocation> {
 
   @override
   Widget build(BuildContext context) {
+    var _clientViewmodel = ref.watch(clientViewModel);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -41,7 +41,7 @@ class _AddLocationState extends State<AddLocation> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Add Location",
+        title: Text("Add Sample Point",
             style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: Colors.white,
@@ -123,6 +123,7 @@ class _AddLocationState extends State<AddLocation> {
   bool update = false;
 
   Future addLocation() async {
+    var _clientViewmodel = ref.watch(clientViewModel);
     setState(() {
       update = true;
     });
@@ -139,48 +140,30 @@ class _AddLocationState extends State<AddLocation> {
         name: name.text,
         description: description.text,
       );
-      final result = await LocationImplementation()
-          .addClientLocation(model)
-          .catchError((onError) {
-        setState(() {
-          update = false;
-        });
-        Constants().notify('Oops... Something went wrong, Try again later');
-      });
-      print(result);
-      if (result != null) {
-        
-        Constants().notify(result.message!);
-        await getLocation();
-        if (myLocations != null) {
+      _clientViewmodel.addClientLocation(model: model);
+      await Future.delayed(const Duration(seconds: 3), () async {
+        if (_clientViewmodel.addclientLocation.data != null) {
           setState(() {
-          update = false;
-        });
-          Navigator.of(context).pop(myLocations);
+            update = false;
+          });
+          _clientViewmodel.getClientLocation(clientId: widget.clientID!);
+        } else {
+          setState(() {
+            update = false;
+          });
         }
-        // Navigator.pushAndRemoveUntil(
-        //     context,
-        //     MaterialPageRoute(
-        //         builder: (context) => ClientLocation(
-        //               clientId: widget.clientID,
-        //             )),
-        //     (route) => false);
-      } else {
-        setState(() {
-          update = false;
-        });
-      }
+      });
     }
   }
 
-  LocationResponseModel? myLocations;
-  Future getLocation() async {
-    final result =
-        await LocationImplementation().getClientLocation(widget.clientID);
-    if (result != null) {
-      setState(() {
-        myLocations = result;
-      });
-    }
-  }
+  // LocationResponseModel? myLocations;
+  // Future getLocation() async {
+  //   final result =
+  //       await LocationImplementation().getClientLocation(widget.clientID);
+  //   if (result != null) {
+  //     setState(() {
+  //       myLocations = result;
+  //     });
+  //   }
+  // }
 }

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pams/providers/provider_services.dart';
 
 class BaseViewModel extends ChangeNotifier {
   final Reader read;
@@ -25,8 +26,17 @@ class BaseViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setBusy(bool value) {
+   void setBusy(bool value) {
+    read(loadingState.state).state = value;
     _busy = value;
     notifyListeners();
+  }
+    bool validateAndSave(GlobalKey<FormState> _key) {
+    final form = _key.currentState;
+    if (form!.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 }

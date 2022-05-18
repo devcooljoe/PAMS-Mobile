@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/images.dart';
 
 class EditEmail extends StatefulWidget {
   @override
@@ -29,8 +30,7 @@ class _EditEmailState extends State<EditEmail> {
                 width: 230,
                 decoration: BoxDecoration(
                     image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: AssetImage("assets/email update.png"))),
+                        fit: BoxFit.fill, image: AssetImage(emailIcon))),
               ),
               Text("Update your email address", style: TextStyle(fontSize: 24)),
               SizedBox(
