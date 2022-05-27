@@ -21,7 +21,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
   @override
   Widget build(BuildContext context) {
     var _clientViewModel = ref.watch(clientViewModel);
-    var client = _clientViewModel.clientData.data!.returnObject!.data!;
+    // var client = _clientViewModel.clientData.data!.returnObject!;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -36,58 +36,85 @@ class _CustomerListState extends ConsumerState<CustomerList> {
         elevation: 0,
         title: Text("Sample Site  List",
             style: TextStyle(color: Colors.black, fontSize: 20)),
-      ),
-      backgroundColor: Colors.white,
-      body: ListView(
-        physics: BouncingScrollPhysics(),
-        children: [
-          SizedBox(
-            height: 20,
-          ),
+        actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextFormField(
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp('[ ]')),
-              ],
-              decoration: InputDecoration(
-                  hintText: 'Sample sites',
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.black,
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10))),
+            padding: const EdgeInsets.only(right: 20),
+            child: InkWell(
+              onTap: () {
+                _clientViewModel.getAllClients();
+              },
+              child: Icon(
+                Icons.sync,
+                color: Colors.black,
+              ),
             ),
-          ),
-          client.isEmpty == true
-              ? Center(
-                  child: Text('No Sample Site Yet'),
-                )
-              : ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: client.length,
-                  itemBuilder: (BuildContext context, index) {
-                    return InkWell(
-                      onTap: () {
-                        _clientViewModel.getClientLocation(
-                            clientId: client[index].id!);
-                        Get.to(() => ClientLocation(),
-                            arguments: client[index]);
-                      },
-                      child: ListWidget(
-                        title: client[index].name,
-                        subTitle: client[index].email,
-                        trailing: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 17,
-                        ),
-                      ),
-                    );
-                  })
+          )
         ],
       ),
+      backgroundColor: Colors.white,
+      body: _clientViewModel.clientData.loading
+          ? Center(
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : ListView(
+              physics: BouncingScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: 20,
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: TextFormField(
+                    inputFormatters: [
+                      FilteringTextInputFormatter.deny(RegExp('[ ]')),
+                    ],
+                    decoration: InputDecoration(
+                        hintText: 'Sample sites',
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Colors.black,
+                        ),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                  ),
+                ),
+                _clientViewModel.clientData.data!.returnObject!.isEmpty == true
+                    ? Center(
+                        child: Text('No Sample Site Yet'),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _clientViewModel
+                            .clientData.data!.returnObject!.length,
+                        itemBuilder: (BuildContext context, index) {
+                          return InkWell(
+                            onTap: () {
+                              // _clientViewModel.getClientLocation(
+                              //     clientId: client[index].id!);
+                              Get.to(() => ClientLocation(),
+                                  arguments: _clientViewModel
+                                      .clientData.data!.returnObject![index]);
+                            },
+                            child: ListWidget(
+                              title: _clientViewModel
+                                  .clientData.data!.returnObject![index].name,
+                              subTitle: _clientViewModel
+                                  .clientData.data!.returnObject![index].email,
+                              trailing: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 17,
+                              ),
+                            ),
+                          );
+                        })
+              ],
+            ),
     );
   }
 }

@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
+import 'package:pams/providers/provider_services.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/images.dart';
 import 'package:pams/views/clients/customerList.dart';
-import 'package:pams/views/profile.dart';
+import 'package:pams/views/profile/profile.dart';
 import 'package:pams/views/report/select_report_template_type.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -45,15 +46,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
         false;
   }
 
+  bool check = false;
   @override
   Widget build(BuildContext context) {
     var _authViewModel = ref.watch(authViewModel);
-    var _clientViewmodel = ref.watch(clientViewModel);
+    var _clientViewModel = ref.watch(clientViewModel);
+    var _phoneMode = ref.watch(appMode.state);
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: _clientViewmodel.clientData.data == null
+        body: _clientViewModel.clientData.data == null
             ? Center(
                 child: SizedBox(
                   height: 20,
@@ -105,8 +108,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             fontWeight: FontWeight.w600,
                                             color: Colors.black,
                                             fontSize: 20)),
-                                    Text(
-                                        '',
+                                    Text('',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
@@ -151,17 +153,35 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               fontWeight: FontWeight.w500),
                         ),
                         Container(
-                          height: 30.w,
-                          width: 30.w,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.lightBlueAccent),
-                          child: Icon(
-                            Icons.calendar_today_outlined,
-                            color: Colors.white,
-                            size: 15,
-                          ),
-                        )
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      spreadRadius: 0.3,
+                                      offset: Offset(0.4, 0.6),
+                                      blurRadius: 1,
+                                      color: CustomColors.grey.withOpacity(0.5))
+                                ],
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(7)),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10, right: 10, top: 0, bottom: 0),
+                              child: Switch(
+                                  activeColor: CustomColors.mainDarkGreen,
+                                  value: _phoneMode.state,
+                                  onChanged: (value) {
+                                    final isObs = ref
+                                        .watch(passwordObscureProvider.state);
+                                    setState(() {
+                                      _phoneMode.state = !_phoneMode.state;
+                                      // isObs.state = !isObs.state;
+                                      // value = _phoneMode.state;
+                                      // _phoneMode = value.;
+
+                                      // Timer(const Duration(milliseconds: 5000), () => isObs.state = true);
+                                    });
+                                  }),
+                            ))
                       ],
                     ),
                   ),
@@ -204,6 +224,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       children: [
                         InkWell(
                           onTap: () {
+                            //  _clientViewModel.getAllClients();
                             Get.to(() => CustomerList());
                           },
                           child: Container(

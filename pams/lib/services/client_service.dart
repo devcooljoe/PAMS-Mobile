@@ -9,13 +9,14 @@ import 'package:pams/models/add_location_request_model.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/models/get_location_response.dart';
 import 'package:pams/models/update_location_model.dart';
+import 'package:pams/views/authentication/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClientServiceImplementation extends ApiManager {
   final Reader reader;
   GetStorage box = GetStorage();
 
-  final getAllClientURL = '/Client/GetAllClient';
+  final getAllClientURL = '/Client/GetAllClientField';
   final getClientLocaionUrl =
       '/FieldScientistAnalysisNesrea/get-all-Sample-locations-for-a-Client';
   final addClientLocationURL =
@@ -25,14 +26,15 @@ class ClientServiceImplementation extends ApiManager {
   ClientServiceImplementation(this.reader) : super(reader);
 
   //load all clients
-  Future<CustomerResponseModel?> getAllClientData(int? pageNumber) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<CustomerResponseModel?> getAllClientData() async {
     var token = box.read('token');
-    final response = await getHttp(
-        getAllClientURL + '?pageSize=10&pageNumber=$pageNumber',
-        token: token);
+    final response = await getHttp(getAllClientURL, token: token);
+    print(response.data);
     if (response.responseCodeError == null) {
       return CustomerResponseModel.fromJson(response.data);
+    } else if (response.statusCode == 401) {
+      box.erase();
+      Get.offAll(() => AuthPage());
     } else {
       return CustomerResponseModel(status: false);
     }
@@ -42,8 +44,8 @@ class ClientServiceImplementation extends ApiManager {
   Future<LocationResponseModel?> getClientLocation(
       {required String clientId}) async {
     var token = box.read('token');
-    final response =
-        await getHttp(getClientLocaionUrl + 'clientId=$clientId', token: token);
+    final response = await getHttp(getClientLocaionUrl + '?clientId=$clientId',
+        token: token);
     if (response.responseCodeError == null) {
       return LocationResponseModel.fromJson(response.data);
     } else {
@@ -53,7 +55,9 @@ class ClientServiceImplementation extends ApiManager {
 
   ///Update location
   Future<UpdateLocationResponseModel?> updateClientLocation(
-      int locationId, String name, String description) async {
+      {required int locationId,
+      required String name,
+      required String description}) async {
     var token = box.read('token');
     final response = await putHttp(
         "/FieldScientistAnalysisNesrea/Update-a-client-sample-location?SampleLocationId=$locationId&Name=$name&Description=$description",

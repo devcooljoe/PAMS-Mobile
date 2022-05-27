@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/utils/constants.dart';
 import 'package:pams/styles/custom_colors.dart';
 
-class EditLocation extends StatefulWidget {
+class EditLocationPage extends ConsumerStatefulWidget {
   final String? name;
   final String? description;
   final int? locatoionId;
   final String? clientID;
 
-  const EditLocation(
+  const EditLocationPage(
       {Key? key, this.name, this.description, this.locatoionId, this.clientID})
       : super(key: key);
 
   @override
-  _EditLocationState createState() => _EditLocationState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _EditLocationPageState();
 }
 
-class _EditLocationState extends State<EditLocation> {
+class _EditLocationPageState extends ConsumerState<EditLocationPage> {
   TextEditingController name = TextEditingController();
   TextEditingController description = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,6 +32,8 @@ class _EditLocationState extends State<EditLocation> {
 
   @override
   Widget build(BuildContext context) {
+    var _clientViewmodel = ref.watch(clientViewModel);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -41,7 +46,7 @@ class _EditLocationState extends State<EditLocation> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Edit Location",
+        title: Text("Edit Sample Point",
             style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: Colors.white,
@@ -88,9 +93,11 @@ class _EditLocationState extends State<EditLocation> {
       bottomNavigationBar: BottomAppBar(
         elevation: 0,
         color: Colors.white,
-        child: InkWell(
+        child: 
+        InkWell(
           onTap: () async {
-          //  await updateLocation();
+            await updateLocation();
+            // _clientViewmodel.getAllClients();
           },
           child: Container(
             margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -116,11 +123,46 @@ class _EditLocationState extends State<EditLocation> {
             ),
           ),
         ),
+      
+      
       ),
     );
   }
 
   bool update = false;
+
+  Future updateLocation() async {
+    var _clientViewmodel = ref.watch(clientViewModel);
+    setState(() {
+      update = true;
+    });
+
+    final form = _formKey.currentState;
+    if (!form!.validate()) {
+      setState(() {
+        update = false;
+      });
+    } else {
+      form.save();
+      _clientViewmodel.updateClientLocation(
+          locationId: widget.locatoionId,
+          name: name.text,
+          description: description.text);
+      await Future.delayed(const Duration(seconds: 5), () async {
+        _clientViewmodel.getAllClients();
+        if (_clientViewmodel.updateclientLocation.data != null) {
+          _clientViewmodel.getAllClients();
+          setState(() {
+            update = false;
+          });
+        } else {
+          setState(() {
+            update = false;
+          });
+        }
+      });
+    }
+  }
   // Future updateLocation() async {
   //   setState(() {
   //     update = true;

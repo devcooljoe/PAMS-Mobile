@@ -109,7 +109,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
                       ),
                     )
                   : Text(
-                      'Add Location',
+                      'Add Sample Point',
                       style: TextStyle(
                           color: CustomColors.background, fontSize: 18),
                     ),
@@ -146,7 +146,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
           setState(() {
             update = false;
           });
-          _clientViewmodel.getClientLocation(clientId: widget.clientID!);
+          _clientViewmodel.getAllClients();
         } else {
           setState(() {
             update = false;

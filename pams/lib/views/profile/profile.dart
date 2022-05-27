@@ -5,7 +5,7 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/images.dart';
 import 'package:pams/utils/shared_pref_manager.dart';
 import 'package:pams/views/authentication/auth.dart';
-import 'package:pams/views/editemail.dart';
+import 'package:pams/views/profile/editemail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {

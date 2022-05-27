@@ -9,8 +9,10 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:pams/views/clients/location/edit_location.dart';
 import 'package:pams/views/clients/select_sample_type.dart';
+import 'package:pams/views/result_template_screen.dart';
 import 'package:pams/widgets/list_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class ClientLocation extends ConsumerStatefulWidget {
   const ClientLocation({Key? key}) : super(key: key);
@@ -22,10 +24,10 @@ class ClientLocation extends ConsumerStatefulWidget {
 class _ClientLocationState extends ConsumerState<ClientLocation> {
   @override
   Widget build(BuildContext context) {
-    var _authViewModel = ref.watch(authViewModel);
-    var _clientViewmodel = ref.watch(clientViewModel);
+    // var _authViewModel = ref.watch(authViewModel);
+    // var _clientViewmodel = ref.watch(clientViewModel);
     var clientData =
-        ModalRoute.of(context)?.settings.arguments as CustomerDataList;
+        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -59,120 +61,175 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
             style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: CustomColors.background,
-      body: _clientViewmodel.clientLocation.data == null
-          ? Center(
-              child: SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                    color: CustomColors.mainDarkGreen),
-              ),
-            )
-          : _clientViewmodel.clientLocation.data!.returnObject!.isEmpty == true
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('No Locations yet'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      InkWell(
-                          onTap: () async {
-                            // _clientViewmodel.getClientLocation(
-                            //     clientId: clientData.id!);
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => AddLocation(
-                                      clientID: clientData.id,
-                                    )));
-                          },
-                          child: Text(
-                            'Create one',
-                            style: TextStyle(
-                                color: CustomColors.mainDarkGreen,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17.sp),
-                          ))
-                    ],
-                  ),
-                )
-              : ListView(
-                  children: [
-                    SizedBox(
-                      height: 20,
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TabBar(
+                    unselectedLabelColor: Colors.grey,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    labelColor: Colors.black,
+                    indicator: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              width: 1, color: CustomColors.mainDarkGreen)),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(
-                    //       horizontal: 20, vertical: 10),
-                    //   child: TextFormField(
-                    //     inputFormatters: [
-                    //       FilteringTextInputFormatter.deny(RegExp('[ ]')),
-                    //     ],
-                    //     decoration: InputDecoration(
-                    //         hintText: 'Search Locations',
-                    //         prefixIcon: Icon(
-                    //           Icons.search,
-                    //           color: Colors.black,
-                    //         ),
-                    //         border: OutlineInputBorder(
-                    //             borderRadius: BorderRadius.circular(10))),
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   height: 20,
-                    // ),
-                    ListView.builder(
-                        itemCount: _clientViewmodel
-                            .clientLocation.data!.returnObject!.length,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          var data = _clientViewmodel.clientLocation.data;
-                          return InkWell(
-                            onTap: () {
-                              // Navigator.of(context).push(MaterialPageRoute(
-                              //     builder: (context) => SelectSampleType(
-                              //           locationId: myLocations!
-                              //               .returnObject![index]
-                              //               .sampleLocationId!,
-                              //           clientId: widget.clientId,
-                              //           clientName: widget.clientName,
-                              //         )));
-                            },
-                            child: ListWidget(
-                              title: data!.returnObject![index].name,
-                              subTitle: data.returnObject![index].description,
-                              trailing: Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: InkWell(
-                                  onTap: () async {
-                                    var result = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => EditLocation(
-                                                  clientID: '',
-                                                  name: data
-                                                      .returnObject![index]
-                                                      .name,
-                                                  description: data
-                                                      .returnObject![index]
-                                                      .description,
-                                                  locatoionId: data
-                                                      .returnObject![index]
-                                                      .sampleLocationId,
-                                                )));
-                                  },
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: CustomColors.mainDarkGreen,
-                                  ),
+                    tabs: [
+                      Tab(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text("Online Points"),
+                        ),
+                      ),
+                      Tab(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text("Offline Points"),
+                        ),
+                      ),
+                    ]),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TabBarView(children: [
+                  //Online Tab
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    child: clientData.samplePointLocations!.isEmpty == true
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('No Locations yet'),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                InkWell(
+                                    onTap: () async {
+                                      // _clientViewmodel.getClientLocation(
+                                      //     clientId: clientData.id!);
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                              builder: (context) => AddLocation(
+                                                    clientID: clientData.id,
+                                                  )));
+                                    },
+                                    child: Text(
+                                      'Create one',
+                                      style: TextStyle(
+                                          color: CustomColors.mainDarkGreen,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17.sp),
+                                    ))
+                              ],
+                            ),
+                          )
+                        : ListView(
+                            physics: BouncingScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                child: TextFormField(
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.deny(
+                                        RegExp('[ ]')),
+                                  ],
+                                  decoration: InputDecoration(
+                                      hintText: 'Sample Points',
+                                      prefixIcon: Icon(
+                                        Icons.search,
+                                        color: Colors.black,
+                                      ),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
                                 ),
                               ),
-                            ),
-                          );
-                        })
-                  ],
-                ),
+                              ListView.builder(
+                                  itemCount:
+                                      clientData.samplePointLocations!.length,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    var data = clientData.samplePointLocations;
+                                    return InkWell(
+                                      onTap: () {
+                                        Get.to(
+                                            () => ResultTemplatePage(
+                                                  samplePointName:
+                                                      data![index].name,
+                                                  samplePointIndex: index,
+                                                  samplePointId: data[index]
+                                                      .sampleLocationId,
+                                                ),
+                                            arguments: clientData);
+                                      },
+                                      child: ListWidget(
+                                        title: data![index].name,
+                                        subTitle: data[index].description,
+                                        trailing: Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 10),
+                                          child: InkWell(
+                                            onTap: () async {
+                                              var result = await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          EditLocationPage(
+                                                            clientID:
+                                                                clientData.id,
+                                                            name: data[index]
+                                                                .name,
+                                                            description: data[
+                                                                    index]
+                                                                .description,
+                                                            locatoionId: data[
+                                                                    index]
+                                                                .sampleLocationId,
+                                                          )));
+                                            },
+                                            child: Icon(
+                                              Icons.edit,
+                                              color: CustomColors.mainDarkGreen,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  })
+                            ],
+                          ),
+                  ),
+
+                  //Offline Tab
+                  MediaQuery.removePadding(
+                    context: context,
+                    removeRight: false,
+                    removeTop: true,
+                    removeLeft: false,
+                    child: ListView(
+                      children: [],
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

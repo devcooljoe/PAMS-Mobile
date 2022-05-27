@@ -69,7 +69,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     var _authViewModel = ref.watch(authViewModel);
-     var _clientViewmodel = ref.watch(clientViewModel);
+    var _clientViewmodel = ref.watch(clientViewModel);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(

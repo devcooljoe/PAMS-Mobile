@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:pams/views/authentication/auth.dart';
-import 'package:pams/views/splashScreen.dart';
+import 'package:pams/views/onboarding/splashScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 
