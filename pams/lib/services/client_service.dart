@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as prefix;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
@@ -8,6 +8,7 @@ import 'package:pams/models/add_location_model.dart';
 import 'package:pams/models/add_location_request_model.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/models/get_location_response.dart';
+import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
 import 'package:pams/views/authentication/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +24,8 @@ class ClientServiceImplementation extends ApiManager {
       '/FieldScientistAnalysisNesrea/add-client-location';
   final deleteClientLocationUrl =
       '/FieldScientistAnalysisNesrea/delete-a-client-sample-location/';
+  final addDPRTestForEach =
+      '/FieldScientistAnalysisDPR/add-dpr-TestResult-ForEachTest';
   ClientServiceImplementation(this.reader) : super(reader);
 
   //load all clients
@@ -70,6 +73,7 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
+  // delete a sample point or client location
   Future<Map<String, dynamic>?> deleteClientLocation(
     int locationId,
   ) async {
@@ -83,6 +87,7 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
+// add sample point or client location
   Future<AddLocationResponseModel?> addClientLocation(
       AddLocationRequestModel model) async {
     var token = box.read('token');
@@ -92,6 +97,30 @@ class ClientServiceImplementation extends ApiManager {
       return AddLocationResponseModel.fromJson(response.data);
     } else {
       return AddLocationResponseModel(status: false);
+    }
+  }
+
+  //run one test for dpr
+  // run a test for each template
+  Future<RunSimpleTestResponseModel> runEACHDPRTest({
+    required int Id,
+    required int DPRFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    var token = box.read('token');
+    var postObj = {
+      'Id': Id,
+      'DPRFieldId': DPRFieldId,
+      'TestLimit': TestLimit,
+      'TestResult': TestResult
+    };
+    final response = await postHttp(addDPRTestForEach, postObj,
+        token: token, formdata: true);
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
     }
   }
 }

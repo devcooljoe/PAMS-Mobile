@@ -6,6 +6,7 @@ import 'package:pams/http/custom_exception.dart';
 import 'dart:developer' as _logger;
 
 import 'package:pams/models/formatted_response.dart';
+import 'package:pams/views/authentication/auth.dart';
 
 
 abstract class ApiManager {
@@ -126,6 +127,8 @@ abstract class ApiManager {
           );
         }
       } else if (e.response!.statusCode == 401) {
+        
+       /// Get.offAll(() => AuthPage());
         // _navigationService.navigateAndClearHistory(Routes.authScreen);
         return FormattedResponse(
           data: e.response?.data,

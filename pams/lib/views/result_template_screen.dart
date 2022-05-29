@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/providers/category_provider.dart';
+import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
@@ -14,12 +15,12 @@ class ResultTemplatePage extends ConsumerStatefulWidget {
   String? samplePointName;
   int? samplePointId;
   int? samplePointIndex;
-  ResultTemplatePage(
-      {Key? key,
-      required this.samplePointName,
-      required this.samplePointIndex,
-      required this.samplePointId})
-      : super(key: key);
+  ResultTemplatePage({
+    Key? key,
+    required this.samplePointName,
+    required this.samplePointIndex,
+    required this.samplePointId,
+  }) : super(key: key);
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() =>
@@ -46,12 +47,41 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     // Navigator.pop(cxt);
   }
 
-  List<TextEditingController> _controllers = [];
+  List<TextEditingController> _textResultControllers = [];
+  List<TextEditingController> _textLimitControllers = [];
+
+  values(BuildContext context) {
+    _textResultControllers.add(TextEditingController());
+    _textLimitControllers.add(TextEditingController());
+    var clientData =
+        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+    var mydata = clientData.samplePointLocations!;
+    var mylocations = mydata[0].dprSamples!.dprSamples!;
+    for (var i = 0; i < mylocations.length; i++) {
+      _textResultControllers.add(TextEditingController());
+      _textLimitControllers.add(TextEditingController());
+      _textLimitControllers[i].text = mylocations[i].testLimit!;
+      _textResultControllers[i].text = mylocations[i].testResult!;
+    }
+    // for (var element in mylocations) {
+
+    // }
+  }
+
+  @override
+  void didChangeDependencies() {
+    values(context);
+    //print('hey lenght ${widget.templateIndex}');
+    super.didChangeDependencies();
+  }
+
+  int update = -1;
   @override
   Widget build(BuildContext context) {
     var clientData =
         ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     var _sampleProvider = ref.watch(categoryViewModel);
+    var _clientProvider = ref.watch(clientViewModel);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -147,7 +177,11 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                     .samplePointLocations![widget.samplePointIndex!]
                     .dprSamples!
                     .dprSamples![index];
-                _controllers.add(TextEditingController());
+                // _textResultControllers.add(TextEditingController());
+                // _textLimitControllers.add(TextEditingController());
+                // _textLimitControllers[index].text = data.testLimit!;
+                // _textResultControllers[index].text = data.testResult!;
+
                 return Padding(
                   padding:
                       const EdgeInsets.only(right: 10, left: 10, bottom: 15),
@@ -160,7 +194,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width / 1.3,
+                            width: 300,
                             child: Column(
                               children: [
                                 Row(
@@ -181,29 +215,47 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                   children: [
                                     Text(data.testUnit!),
                                     SizedBox(
-                                      width: 100,
-                                      child: TextFormField(
-                                        decoration: InputDecoration(
-                                            hintText: data.testLimit,
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 13,
-                                                    horizontal: 5),
-                                            border: OutlineInputBorder(
-                                                borderSide: BorderSide())),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 100,
-                                      child: TextFormField(
-                                        controller: _controllers[index],
-                                        decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.symmetric(
-                                                    vertical: 13,
-                                                    horizontal: 5),
-                                            border: OutlineInputBorder(
-                                                borderSide: BorderSide())),
+                                      width: 230,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              onChanged: (value) {},
+                                              controller:
+                                                  _textLimitControllers[index],
+                                              decoration: InputDecoration(
+                                                  hintText: data.testLimit,
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 13,
+                                                          horizontal: 5),
+                                                  border: OutlineInputBorder(
+                                                      borderSide:
+                                                          BorderSide())),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          SizedBox(
+                                            width: 100,
+                                            child: TextFormField(
+                                              controller:
+                                                  _textResultControllers[index],
+                                              decoration: InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 13,
+                                                          horizontal: 5),
+                                                  border: OutlineInputBorder(
+                                                      borderSide:
+                                                          BorderSide())),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
@@ -212,18 +264,52 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                             ),
                           ),
                           InkWell(
-                            onTap: () {
-                              print(_controllers[index].text);
+                            onTap: () async {
+                              setState(() {
+                                update = index;
+                              });
+                              _clientProvider.runEachDPRTest(
+                                  Id: data.id!,
+                                  DPRFieldId: data.dprFieldId!,
+                                  TestLimit: _textLimitControllers[index].text,
+                                  TestResult:
+                                      _textResultControllers[index].text);
+
+                              await Future.delayed(const Duration(seconds: 5),
+                                  () async {
+                                _clientProvider.getAllClients();
+                                if (_clientProvider.runEachDPRData.data !=
+                                    null) {
+                                  _clientProvider.getAllClients();
+                                  setState(() {
+                                    update = -1;
+                                  });
+                                } else {
+                                  setState(() {
+                                    update = -1;
+                                  });
+                                }
+                              });
+
+                              // print(_textResultControllers[index].text);
                             },
                             child: CircleAvatar(
                               radius: 15,
                               backgroundColor: CustomColors.mainDarkGreen,
                               child: Center(
-                                  child: Icon(
-                                Icons.check,
-                                color: CustomColors.background,
-                                size: 13,
-                              )),
+                                  child: update == index
+                                      ? SizedBox(
+                                          height: 10,
+                                          width: 10,
+                                          child: CircularProgressIndicator(
+                                            color: CustomColors.background,
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.check,
+                                          color: CustomColors.background,
+                                          size: 13,
+                                        )),
                             ),
                           )
                         ],
@@ -243,7 +329,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 height: 130,
-                width: MediaQuery.of(context).size.width,
+                width: 300,
                 decoration: BoxDecoration(
                   image: _image == null
                       ? DecorationImage(
@@ -269,7 +355,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
             child: Container(
               margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
               height: 60,
-              width: MediaQuery.of(context).size.width,
+              width: 300,
               decoration: BoxDecoration(
                   color: CustomColors.mainDarkGreen,
                   borderRadius: BorderRadius.circular(10)),

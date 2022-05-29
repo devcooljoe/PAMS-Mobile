@@ -5,6 +5,7 @@ import 'package:pams/models/add_location_request_model.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/models/future_manager.dart';
 import 'package:pams/models/get_location_response.dart';
+import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/view_models/base_vm.dart';
@@ -17,6 +18,7 @@ class ClienServiceViewModel extends BaseViewModel {
   FutureManager<AddLocationResponseModel> addclientLocation = FutureManager();
   FutureManager<UpdateLocationResponseModel> updateclientLocation =
       FutureManager();
+  FutureManager<RunSimpleTestResponseModel> runEachDPRData = FutureManager();
 
   ClienServiceViewModel(this.reader) : super(reader) {
     getAllClients();
@@ -79,6 +81,29 @@ class ClienServiceViewModel extends BaseViewModel {
       notifyListeners();
     } else {
       updateclientLocation.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  //run each dpr test
+  runEachDPRTest({
+    required int Id,
+    required int DPRFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    runEachDPRData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).runEACHDPRTest(
+        Id: Id,
+        DPRFieldId: DPRFieldId,
+        TestLimit: TestLimit,
+        TestResult: TestResult);
+    if (res.status == true) {
+      runEachDPRData.onSuccess(res);
+      notifyListeners();
+    } else {
+      runEachDPRData.onError('Error');
       notifyListeners();
     }
   }

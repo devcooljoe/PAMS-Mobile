@@ -174,11 +174,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                         .watch(passwordObscureProvider.state);
                                     setState(() {
                                       _phoneMode.state = !_phoneMode.state;
-                                      // isObs.state = !isObs.state;
-                                      // value = _phoneMode.state;
-                                      // _phoneMode = value.;
-
-                                      // Timer(const Duration(milliseconds: 5000), () => isObs.state = true);
                                     });
                                   }),
                             ))
