@@ -10,6 +10,7 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 class ResultTemplatePage extends ConsumerStatefulWidget {
   String? samplePointName;
@@ -31,7 +32,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   bool selectedSa = false;
   bool unSelectedSa = true;
   int selected = -0;
-  int selectedTemplate = 0;
   String selectedTemplateName = 'DPR';
   bool saveBtn = false;
   XFile? _image;
@@ -50,32 +50,36 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   List<TextEditingController> _textResultControllers = [];
   List<TextEditingController> _textLimitControllers = [];
 
-  values(BuildContext context) {
-    _textResultControllers.add(TextEditingController());
-    _textLimitControllers.add(TextEditingController());
-    var clientData =
-        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
-    var mydata = clientData.samplePointLocations!;
-    var mylocations = mydata[0].dprSamples!.dprSamples!;
-    for (var i = 0; i < mylocations.length; i++) {
-      _textResultControllers.add(TextEditingController());
-      _textLimitControllers.add(TextEditingController());
-      _textLimitControllers[i].text = mylocations[i].testLimit!;
-      _textResultControllers[i].text = mylocations[i].testResult!;
-    }
-    // for (var element in mylocations) {
-
-    // }
-  }
+  // values(BuildContext context) {
+  //   var _sampleProvider = ref.watch(categoryViewModel);
+  //   _textResultControllers.add(TextEditingController());
+  //   _textLimitControllers.add(TextEditingController());
+  //   var clientData =
+  //       ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+  //   var mydata = clientData.samplePointLocations!;
+  //   var mylocations = _sampleProvider.templateIndex == 0
+  //       ? mydata[_sampleProvider.templateIndex].dprSamples!.dprSamples!
+  //       : _sampleProvider.templateIndex == 1
+  //           ? mydata[_sampleProvider.templateIndex].fmenvSamples!.fmenvSamples!
+  //           : mydata[_sampleProvider.templateIndex]
+  //               .nesreaSamples!
+  //               .nesreaSamples!;
+  //   for (var i = 0; i < mylocations.length; i++) {
+  //     _textResultControllers.add(TextEditingController());
+  //     _textLimitControllers.add(TextEditingController());
+  //     _textLimitControllers[i].text = mylocations[i].testLimit!;
+  //     _textResultControllers[i].text = mylocations[i].testResult!;
+  //   }
+  // }
 
   @override
   void didChangeDependencies() {
-    values(context);
-    //print('hey lenght ${widget.templateIndex}');
+    //  values(context);
     super.didChangeDependencies();
   }
 
   int update = -1;
+  bool changeTemplate = false;
   @override
   Widget build(BuildContext context) {
     var clientData =
@@ -163,24 +167,43 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
               ),
             ),
           ),
+
           //list of sample tests
           ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: clientData
-                  .samplePointLocations![widget.samplePointIndex!]
-                  .dprSamples!
-                  .dprSamples!
-                  .length,
+              itemCount: _sampleProvider.templateIndex == 0
+                  ? clientData.samplePointLocations![widget.samplePointIndex!]
+                      .dprSamples!.dprSamples!.length
+                  : _sampleProvider.templateIndex == 1
+                      ? clientData
+                          .samplePointLocations![widget.samplePointIndex!]
+                          .fmenvSamples!
+                          .fmenvSamples!
+                          .length
+                      : clientData
+                          .samplePointLocations![widget.samplePointIndex!]
+                          .nesreaSamples!
+                          .nesreaSamples!
+                          .length,
               itemBuilder: ((context, index) {
-                var data = clientData
-                    .samplePointLocations![widget.samplePointIndex!]
-                    .dprSamples!
-                    .dprSamples![index];
-                // _textResultControllers.add(TextEditingController());
-                // _textLimitControllers.add(TextEditingController());
-                // _textLimitControllers[index].text = data.testLimit!;
-                // _textResultControllers[index].text = data.testResult!;
+                _textResultControllers.add(TextEditingController());
+                _textLimitControllers.add(TextEditingController());
+                var data = _sampleProvider.templateIndex == 0
+                    ? clientData.samplePointLocations![widget.samplePointIndex!]
+                        .dprSamples!.dprSamples![index]
+                    : _sampleProvider.templateIndex == 1
+                        ? clientData
+                            .samplePointLocations![widget.samplePointIndex!]
+                            .fmenvSamples!
+                            .fmenvSamples![index]
+                        : clientData
+                            .samplePointLocations![widget.samplePointIndex!]
+                            .nesreaSamples!
+                            .nesreaSamples![index];
+
+                _textLimitControllers[index].text = data.testLimit!;
+                _textResultControllers[index].text = data.testResult!;
 
                 return Padding(
                   padding:
@@ -263,55 +286,62 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                               ],
                             ),
                           ),
-                          InkWell(
-                            onTap: () async {
-                              setState(() {
-                                update = index;
-                              });
-                              _clientProvider.runEachDPRTest(
-                                  Id: data.id!,
-                                  DPRFieldId: data.dprFieldId!,
-                                  TestLimit: _textLimitControllers[index].text,
-                                  TestResult:
-                                      _textResultControllers[index].text);
+                          StatefulBuilder(builder: ((context, setState) {
+                            return InkWell(
+                              onTap: () async {
+                                _sampleProvider.templateIndex == 0
+                                    ? runDPRSingles(
+                                        index: index,
+                                        Id: data.id!,
+                                        DPRFieldId: data.dprFieldId!)
+                                    : _sampleProvider.templateIndex == 1
+                                        ? runFMENVSingles(
+                                            index: index,
+                                            Id: data.id!,
+                                            FMEnvFieldId: data.fmenvFieldId!)
+                                        : runNESREASingles(
+                                            index: index,
+                                            Id: data.id!,
+                                            NesreaFieldId: data.nesreaFieldId!);
 
-                              await Future.delayed(const Duration(seconds: 5),
-                                  () async {
-                                _clientProvider.getAllClients();
-                                if (_clientProvider.runEachDPRData.data !=
-                                    null) {
-                                  _clientProvider.getAllClients();
-                                  setState(() {
-                                    update = -1;
-                                  });
-                                } else {
-                                  setState(() {
-                                    update = -1;
-                                  });
-                                }
-                              });
-
-                              // print(_textResultControllers[index].text);
-                            },
-                            child: CircleAvatar(
-                              radius: 15,
-                              backgroundColor: CustomColors.mainDarkGreen,
-                              child: Center(
-                                  child: update == index
-                                      ? SizedBox(
-                                          height: 10,
-                                          width: 10,
-                                          child: CircularProgressIndicator(
+                                // setState(
+                                //   () {
+                                //     update = index;
+                                //   },
+                                // );
+                                // int i = index;
+                                // print('object');
+                                // _clientProvider.runEachDPRTest(
+                                //     Id: data.id!,
+                                //     DPRFieldId: data.dprFieldId!,
+                                //     TestLimit: _textLimitControllers[i].text,
+                                //     TestResult: _textResultControllers[i].text);
+                                // setState(
+                                //   () {
+                                //     update = -1;
+                                //   },
+                                // );
+                              },
+                              child: CircleAvatar(
+                                radius: 15,
+                                backgroundColor: CustomColors.mainDarkGreen,
+                                child: Center(
+                                    child: update == index
+                                        ? SizedBox(
+                                            height: 10,
+                                            width: 10,
+                                            child: CircularProgressIndicator(
+                                              color: CustomColors.background,
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.check,
                                             color: CustomColors.background,
-                                          ),
-                                        )
-                                      : Icon(
-                                          Icons.check,
-                                          color: CustomColors.background,
-                                          size: 13,
-                                        )),
-                            ),
-                          )
+                                            size: 13,
+                                          )),
+                              ),
+                            );
+                          }))
                         ],
                       ),
                     ),
@@ -539,13 +569,15 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                         itemBuilder: ((context, index) {
                           return Card(
                             child: ListTile(
-                              onTap: (() {
+                              onTap: (() async {
                                 setState(() {
                                   _sampleProvider.categoryCode =
                                       sampleTemplates[index];
-                                  selectedTemplate = index;
+
+                                  _sampleProvider.templateIndex = index;
                                 });
-                                Navigator.pop(context);
+
+                                Navigator.of(context).pop();
                               }),
                               title: Text(
                                 sampleTemplates[index],
@@ -555,7 +587,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                 templateSamples[index],
                                 style: TextStyle(fontSize: 13),
                               ),
-                              trailing: selectedTemplate == index
+                              trailing: _sampleProvider.templateIndex == index
                                   ? CircleAvatar(
                                       radius: 12,
                                       child: Icon(
@@ -576,5 +608,98 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                 )),
           );
         });
+  }
+
+  //run for dpr
+  runDPRSingles({
+    required int index,
+    required int Id,
+    required int DPRFieldId,
+  }) async {
+    var _clientProvider = ref.watch(clientViewModel);
+    setState(() {
+      update = index;
+    });
+    _clientProvider.runEachDPRTest(
+        Id: Id,
+        DPRFieldId: DPRFieldId,
+        TestLimit: _textLimitControllers[index].text,
+        TestResult: _textResultControllers[index].text);
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.runEachDPRData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          update = -1;
+        });
+      } else {
+        setState(() {
+          update = -1;
+        });
+      }
+    });
+  }
+
+  //run for fmenv
+  runFMENVSingles({
+    required int index,
+    required int Id,
+    required int FMEnvFieldId,
+  }) async {
+    var _clientProvider = ref.watch(clientViewModel);
+    setState(() {
+      update = index;
+    });
+    _clientProvider.runEachFMENVTest(
+        Id: Id,
+        FMEnvFieldId: FMEnvFieldId,
+        TestLimit: _textLimitControllers[index].text,
+        TestResult: _textResultControllers[index].text);
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.runEachFMENVData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          update = -1;
+        });
+      } else {
+        setState(() {
+          update = -1;
+        });
+      }
+    });
+  }
+
+  //run for nesrea
+  runNESREASingles({
+    required int index,
+    required int Id,
+    required int NesreaFieldId,
+  }) async {
+    var _clientProvider = ref.watch(clientViewModel);
+    setState(() {
+      update = index;
+    });
+    _clientProvider.runEachNESREATest(
+        Id: Id,
+        NesreaFieldId: NesreaFieldId,
+        TestLimit: _textLimitControllers[index].text,
+        TestResult: _textResultControllers[index].text);
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.runEachNESREAData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          update = -1;
+        });
+      } else {
+        setState(() {
+          update = -1;
+        });
+      }
+    });
   }
 }

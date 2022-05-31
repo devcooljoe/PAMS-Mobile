@@ -8,6 +8,7 @@ import 'package:pams/models/get_location_response.dart';
 import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
 import 'package:pams/providers/clients_data_provider.dart';
+import 'package:pams/utils/notify_user.dart';
 import 'package:pams/view_models/base_vm.dart';
 
 class ClienServiceViewModel extends BaseViewModel {
@@ -19,6 +20,8 @@ class ClienServiceViewModel extends BaseViewModel {
   FutureManager<UpdateLocationResponseModel> updateclientLocation =
       FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachDPRData = FutureManager();
+  FutureManager<RunSimpleTestResponseModel> runEachFMENVData = FutureManager();
+  FutureManager<RunSimpleTestResponseModel> runEachNESREAData = FutureManager();
 
   ClienServiceViewModel(this.reader) : super(reader) {
     getAllClients();
@@ -59,7 +62,7 @@ class ClienServiceViewModel extends BaseViewModel {
     final res = await reader(clientServiceProvider).addClientLocation(model);
     if (res!.status == true) {
       addclientLocation.onSuccess(res);
-
+      NotifyUser.showAlert(res.message!);
       notifyListeners();
     } else {
       addclientLocation.onError('Error');
@@ -67,6 +70,7 @@ class ClienServiceViewModel extends BaseViewModel {
     }
   }
 
+  // update location
   updateClientLocation(
       {required dynamic locationId,
       required String name,
@@ -77,7 +81,7 @@ class ClienServiceViewModel extends BaseViewModel {
         locationId: locationId, name: name, description: description);
     if (res!.status == true) {
       updateclientLocation.onSuccess(res);
-
+      NotifyUser.showAlert(res.message!);
       notifyListeners();
     } else {
       updateclientLocation.onError('Error');
@@ -101,9 +105,59 @@ class ClienServiceViewModel extends BaseViewModel {
         TestResult: TestResult);
     if (res.status == true) {
       runEachDPRData.onSuccess(res);
+      getAllClients();
+      NotifyUser.showAlert(res.message!);
       notifyListeners();
     } else {
       runEachDPRData.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  //run each fmenv test
+  runEachFMENVTest({
+    required int Id,
+    required int FMEnvFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    runEachFMENVData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).runEACHFMENVTest(
+        Id: Id,
+        FMEnvFieldId: FMEnvFieldId,
+        TestLimit: TestLimit,
+        TestResult: TestResult);
+    if (res.status == true) {
+      runEachFMENVData.onSuccess(res);
+      NotifyUser.showAlert(res.message!);
+      notifyListeners();
+    } else {
+      runEachFMENVData.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  //run each nesrea test
+  runEachNESREATest({
+    required int Id,
+    required int NesreaFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    runEachNESREAData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).runEACHNESREATest(
+        Id: Id,
+        NesreaFieldId: NesreaFieldId,
+        TestLimit: TestLimit,
+        TestResult: TestResult);
+    if (res.status == true) {
+      runEachNESREAData.onSuccess(res);
+      NotifyUser.showAlert(res.message!);
+      notifyListeners();
+    } else {
+      runEachNESREAData.onError('Error');
       notifyListeners();
     }
   }

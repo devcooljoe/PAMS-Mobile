@@ -27,6 +27,10 @@ class ClientServiceImplementation extends ApiManager {
   final addDPRTestForEach =
       '/FieldScientistAnalysisDPR/add-dpr-TestResult-ForEachTest';
   ClientServiceImplementation(this.reader) : super(reader);
+  final addFMENVTestForEach =
+      '/FieldScientistAnalysisFMEnv/add-fmenv-test-Testresult-ForEachTest';
+  final addNesreaTestForEach =
+      '/FieldScientistAnalysisNesrea/add-nesrea-test-Testresult-ForEachTest';
 
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
@@ -117,6 +121,54 @@ class ClientServiceImplementation extends ApiManager {
     };
     final response = await postHttp(addDPRTestForEach, postObj,
         token: token, formdata: true);
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
+  //run one test for fmenv
+  // run a test for each template
+  Future<RunSimpleTestResponseModel> runEACHFMENVTest({
+    required int Id,
+    required int FMEnvFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    var token = box.read('token');
+    var postObj = {};
+
+    final response = await postHttp(
+      addFMENVTestForEach +
+          '?Id=$Id&FMEnvFieldId=$FMEnvFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
+      postObj,
+      token: token,
+    );
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
+  //run one test for nesrea
+  // run a test for each template
+  Future<RunSimpleTestResponseModel> runEACHNESREATest({
+    required int Id,
+    required int NesreaFieldId,
+    required dynamic TestLimit,
+    required dynamic TestResult,
+  }) async {
+    var token = box.read('token');
+    var postObj = {};
+
+    final response = await postHttp(
+      addNesreaTestForEach +
+          '?Id=$Id&NesreaFieldId=$NesreaFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
+      postObj,
+      token: token,
+    );
     if (response.responseCodeError == null) {
       return RunSimpleTestResponseModel.fromJson(response.data);
     } else {
