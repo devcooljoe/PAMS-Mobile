@@ -31,6 +31,10 @@ class ClientServiceImplementation extends ApiManager {
       '/FieldScientistAnalysisFMEnv/add-fmenv-test-Testresult-ForEachTest';
   final addNesreaTestForEach =
       '/FieldScientistAnalysisNesrea/add-nesrea-test-Testresult-ForEachTest';
+  final submitDPRTemplate = '/FieldScientistAnalysisDPR/submit-dpr-TestResult';
+  final submitFMENVTemplate =
+      '/FieldScientistAnalysisFMEnv/submit-fmenv-test-Testresult';
+      final submitNESREATemplate  = '/FieldScientistAnalysisNesrea/submit-nesrea-test-Testresult';
 
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
@@ -128,6 +132,32 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
+  //submit DPR Template
+  Future<RunSimpleTestResponseModel> submitDPRTestTemplate(
+      {required int samplePtId,
+      required int DPRFieldId,
+      required dynamic Latitude,
+      required dynamic Longitude,
+      required dynamic DPRTemplates,
+      required dynamic Picture}) async {
+    var token = box.read('token');
+    var postObj = {
+      'samplePtId': samplePtId,
+      'DPRFieldId': DPRFieldId,
+      'Latitude': Latitude,
+      'Longitude': Longitude,
+      'DPRTemplates': DPRTemplates,
+      'Picture': Picture
+    };
+    final response = await postHttp(submitDPRTemplate, postObj,
+        token: token, formdata: true);
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
   //run one test for fmenv
   // run a test for each template
   Future<RunSimpleTestResponseModel> runEACHFMENVTest({
@@ -152,6 +182,32 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
+  //submit FMENV Template
+  Future<RunSimpleTestResponseModel> submitFMENVTestTemplate(
+      {required int samplePtId,
+      required int FMEnvFieldId,
+      required dynamic Latitude,
+      required dynamic Longitude,
+      required dynamic FMENVTemplates,
+      required dynamic Picture}) async {
+    var token = box.read('token');
+    var postObj = {
+      'samplePtId': samplePtId,
+      'FMEnvFieldId': FMEnvFieldId,
+      'Latitude': Latitude,
+      'Longitude': Longitude,
+      'FMENVTemplates': FMENVTemplates,
+      'Picture': Picture
+    };
+    final response = await postHttp(submitFMENVTemplate, postObj,
+        token: token, formdata: true);
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
   //run one test for nesrea
   // run a test for each template
   Future<RunSimpleTestResponseModel> runEACHNESREATest({
@@ -169,6 +225,32 @@ class ClientServiceImplementation extends ApiManager {
       postObj,
       token: token,
     );
+    if (response.responseCodeError == null) {
+      return RunSimpleTestResponseModel.fromJson(response.data);
+    } else {
+      return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
+    //submit Nesrea Template
+  Future<RunSimpleTestResponseModel> submitNESREATestTemplate(
+      {required int samplePtId,
+      required int NesreaFieldId,
+      required dynamic Latitude,
+      required dynamic Longitude,
+      required dynamic NesreaTemplates,
+      required dynamic Picture}) async {
+    var token = box.read('token');
+    var postObj = {
+      'samplePtId': samplePtId,
+      'NesreaFieldId': NesreaFieldId,
+      'Latitude': Latitude,
+      'Longitude': Longitude,
+      'NesreaTemplates': NesreaTemplates,
+      'Picture': Picture
+    };
+    final response = await postHttp(submitNESREATemplate, postObj,
+        token: token, formdata: true);
     if (response.responseCodeError == null) {
       return RunSimpleTestResponseModel.fromJson(response.data);
     } else {

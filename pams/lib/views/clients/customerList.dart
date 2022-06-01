@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/models/customer_response_model.dart';
+import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/widgets/list_widget.dart';
@@ -21,6 +22,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
   @override
   Widget build(BuildContext context) {
     var _clientViewModel = ref.watch(clientViewModel);
+    var _sampleProvider = ref.watch(categoryViewModel);
     // var client = _clientViewModel.clientData.data!.returnObject!;
     return Scaffold(
       appBar: AppBar(
@@ -97,6 +99,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
                             onTap: () {
                               // _clientViewModel.getClientLocation(
                               //     clientId: client[index].id!);
+                              _sampleProvider.clientIndex = index;
                               Get.to(() => ClientLocation(),
                                   arguments: _clientViewModel
                                       .clientData.data!.returnObject![index]);

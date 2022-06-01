@@ -20,8 +20,14 @@ class ClienServiceViewModel extends BaseViewModel {
   FutureManager<UpdateLocationResponseModel> updateclientLocation =
       FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachDPRData = FutureManager();
+  FutureManager<RunSimpleTestResponseModel> submitDPRTemplateData =
+      FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachFMENVData = FutureManager();
+  FutureManager<RunSimpleTestResponseModel> submitFMENVTemplateData =
+      FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachNESREAData = FutureManager();
+    FutureManager<RunSimpleTestResponseModel> submitNESREATemplateData =
+      FutureManager();
 
   ClienServiceViewModel(this.reader) : super(reader) {
     getAllClients();
@@ -114,6 +120,36 @@ class ClienServiceViewModel extends BaseViewModel {
     }
   }
 
+  //submit  dpr test template
+  submitDPRTemplate({
+    required int samplePtId,
+    required int DPRFieldId,
+    required dynamic Latitude,
+    required dynamic Longitude,
+    required dynamic DPRTemplates,
+    required dynamic Picture,
+  }) async {
+    submitDPRTemplateData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).submitDPRTestTemplate(
+      samplePtId: samplePtId,
+      DPRFieldId: DPRFieldId,
+      Latitude: Latitude,
+      Longitude: Longitude,
+      DPRTemplates: DPRTemplates,
+      Picture: Picture,
+    );
+    if (res.status == true) {
+      submitDPRTemplateData.onSuccess(res);
+      getAllClients();
+      NotifyUser.showAlert(res.message!);
+      notifyListeners();
+    } else {
+      submitDPRTemplateData.onError('Error');
+      notifyListeners();
+    }
+  }
+
   //run each fmenv test
   runEachFMENVTest({
     required int Id,
@@ -138,6 +174,36 @@ class ClienServiceViewModel extends BaseViewModel {
     }
   }
 
+    //submit  fmenv test template
+  submitFmenvTemplate({
+    required int samplePtId,
+    required int FMEnvFieldId,
+    required dynamic Latitude,
+    required dynamic Longitude,
+    required dynamic FMENVTemplates,
+    required dynamic Picture,
+  }) async {
+    submitFMENVTemplateData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).submitFMENVTestTemplate(
+      samplePtId: samplePtId,
+      FMEnvFieldId: FMEnvFieldId,
+      Latitude: Latitude,
+      Longitude: Longitude,
+      FMENVTemplates: FMENVTemplates,
+      Picture: Picture,
+    );
+    if (res.status == true) {
+      submitFMENVTemplateData.onSuccess(res);
+      getAllClients();
+      NotifyUser.showAlert(res.message!);
+      notifyListeners();
+    } else {
+      submitFMENVTemplateData.onError('Error');
+      notifyListeners();
+    }
+  }
+
   //run each nesrea test
   runEachNESREATest({
     required int Id,
@@ -158,6 +224,35 @@ class ClienServiceViewModel extends BaseViewModel {
       notifyListeners();
     } else {
       runEachNESREAData.onError('Error');
+      notifyListeners();
+    }
+  }
+      //submit  nesrea test template
+  submitNesreaTemplate({
+    required int samplePtId,
+    required int NesreaFieldId,
+    required dynamic Latitude,
+    required dynamic Longitude,
+    required dynamic NesreaTemplates,
+    required dynamic Picture,
+  }) async {
+    submitNESREATemplateData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).submitNESREATestTemplate(
+      samplePtId: samplePtId,
+      NesreaFieldId: NesreaFieldId,
+      Latitude: Latitude,
+      Longitude: Longitude,
+      NesreaTemplates: NesreaTemplates,
+      Picture: Picture,
+    );
+    if (res.status == true) {
+      submitNESREATemplateData.onSuccess(res);
+      getAllClients();
+      NotifyUser.showAlert(res.message!);
+      notifyListeners();
+    } else {
+      submitNESREATemplateData.onError('Error');
       notifyListeners();
     }
   }

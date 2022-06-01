@@ -7,10 +7,12 @@ import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/notify_user.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:dio/dio.dart';
 
 class ResultTemplatePage extends ConsumerStatefulWidget {
   String? samplePointName;
@@ -42,6 +44,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
         source: source, imageQuality: 50, maxHeight: 500.0, maxWidth: 500.0);
     setState(() {
       _image = pickedFile;
+      print(_image!.path);
     });
 
     // Navigator.pop(cxt);
@@ -379,6 +382,15 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
           ),
           InkWell(
             onTap: () async {
+              if (_image != null) {
+                _sampleProvider.templateIndex == 0
+                    ? subMiteForDPRTemplate()
+                    : _sampleProvider.templateIndex == 1
+                        ? subMiteForFMENVTemplate()
+                        : subMiteForNESREATemplate();
+              } else {
+                NotifyUser.showAlert('Add picture to proceed');
+              }
               // await updateLocation();
               // _clientViewmodel.getAllClients();
             },
@@ -620,6 +632,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
+
     _clientProvider.runEachDPRTest(
         Id: Id,
         DPRFieldId: DPRFieldId,
@@ -636,6 +649,46 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       } else {
         setState(() {
           update = -1;
+        });
+      }
+    });
+  }
+
+  //submit for dpr template
+  subMiteForDPRTemplate() async {
+    String fileName = _image!.path.split('/').last;
+    setState(() {
+      saveBtn = true;
+    });
+    var _sampleProvider = ref.watch(categoryViewModel);
+    var _clientProvider = ref.watch(clientViewModel);
+    var data = _clientProvider
+        .clientData
+        .data!
+        .returnObject![_sampleProvider.clientIndex!]
+        .samplePointLocations![widget.samplePointIndex!]
+        .dprSamples!;
+
+    _clientProvider.submitDPRTemplate(
+      samplePtId: data.samplePointLocationId!,
+      DPRFieldId: data.id!,
+      Latitude: 233,
+      Longitude: 332,
+      DPRTemplates: data.dprSamples,
+      Picture: await MultipartFile.fromFile(_image!.path,
+          filename: fileName, contentType: MediaType('image', 'jpg')),
+    );
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.submitDPRTemplateData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          saveBtn = false;
+        });
+      } else {
+        setState(() {
+          saveBtn = false;
         });
       }
     });
@@ -672,6 +725,46 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     });
   }
 
+  //submit for fmenv template
+  subMiteForFMENVTemplate() async {
+    String fileName = _image!.path.split('/').last;
+    setState(() {
+      saveBtn = true;
+    });
+    var _sampleProvider = ref.watch(categoryViewModel);
+    var _clientProvider = ref.watch(clientViewModel);
+    var data = _clientProvider
+        .clientData
+        .data!
+        .returnObject![_sampleProvider.clientIndex!]
+        .samplePointLocations![widget.samplePointIndex!]
+        .fmenvSamples!;
+
+    _clientProvider.submitFmenvTemplate(
+      samplePtId: data.samplePointLocationId!,
+      FMEnvFieldId: data.id!,
+      Latitude: 233,
+      Longitude: 332,
+      FMENVTemplates: data.fmenvSamples,
+      Picture: await MultipartFile.fromFile(_image!.path,
+          filename: fileName, contentType: MediaType('image', 'jpg')),
+    );
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.submitFMENVTemplateData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          saveBtn = false;
+        });
+      } else {
+        setState(() {
+          saveBtn = false;
+        });
+      }
+    });
+  }
+
   //run for nesrea
   runNESREASingles({
     required int index,
@@ -698,6 +791,46 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       } else {
         setState(() {
           update = -1;
+        });
+      }
+    });
+  }
+
+  //submit for nesrea template
+  subMiteForNESREATemplate() async {
+    String fileName = _image!.path.split('/').last;
+    setState(() {
+      saveBtn = true;
+    });
+    var _sampleProvider = ref.watch(categoryViewModel);
+    var _clientProvider = ref.watch(clientViewModel);
+    var data = _clientProvider
+        .clientData
+        .data!
+        .returnObject![_sampleProvider.clientIndex!]
+        .samplePointLocations![widget.samplePointIndex!]
+        .nesreaSamples!;
+
+    _clientProvider.submitNesreaTemplate(
+      samplePtId: data.samplePointLocationId!,
+      NesreaFieldId: data.id!,
+      Latitude: 233,
+      Longitude: 332,
+      NesreaTemplates: data.nesreaSamples,
+      Picture: await MultipartFile.fromFile(_image!.path,
+          filename: fileName, contentType: MediaType('image', 'jpg')),
+    );
+
+    await Future.delayed(const Duration(seconds: 5), () async {
+      _clientProvider.getAllClients();
+      if (_clientProvider.submitNESREATemplateData.data != null) {
+        _clientProvider.getAllClients();
+        setState(() {
+          saveBtn = false;
+        });
+      } else {
+        setState(() {
+          saveBtn = false;
         });
       }
     });
