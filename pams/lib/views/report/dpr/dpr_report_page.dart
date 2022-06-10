@@ -144,7 +144,9 @@ class _DPRReportPageState extends State<DPRReportPage> {
                                 ],
                                 color: Colors.white,
                               ),
-                              child: CustomDropDown(
+                              child:
+                              
+                               CustomDropDown(
                                 downloadFile: () {
                                   downloadData(
                                       title: data![index].clientName!,
@@ -923,6 +925,10 @@ class _DPRReportPageState extends State<DPRReportPage> {
                                   ],
                                 ),
                               ));
+                       
+                       
+                       
+                       
                         }),
                   ),
                   // when the _loadMore function is running

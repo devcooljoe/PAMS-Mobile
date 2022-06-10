@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 class AuthViewModel extends BaseViewModel {
   final Reader reader;
   GetStorage box = GetStorage();
+  GetStorage userdata = GetStorage();
 
   FutureManager<LoginResponseModel> userData = FutureManager();
 
@@ -27,6 +28,9 @@ class AuthViewModel extends BaseViewModel {
       Get.offAll(() => HomeView());
       userData.onSuccess(res);
       box.write('token', res.returnObject!.token!);
+      userdata.write('name', res.returnObject!.fullname);
+      userdata.write('email', res.returnObject!.email);
+      userdata.write('role', res.returnObject!.role![0]);
       notifyListeners();
     } else {
       userData.onError('Error');

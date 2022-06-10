@@ -26,7 +26,7 @@ class ClienServiceViewModel extends BaseViewModel {
   FutureManager<RunSimpleTestResponseModel> submitFMENVTemplateData =
       FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachNESREAData = FutureManager();
-    FutureManager<RunSimpleTestResponseModel> submitNESREATemplateData =
+  FutureManager<RunSimpleTestResponseModel> submitNESREATemplateData =
       FutureManager();
 
   ClienServiceViewModel(this.reader) : super(reader) {
@@ -174,7 +174,7 @@ class ClienServiceViewModel extends BaseViewModel {
     }
   }
 
-    //submit  fmenv test template
+  //submit  fmenv test template
   submitFmenvTemplate({
     required int samplePtId,
     required int FMEnvFieldId,
@@ -227,7 +227,8 @@ class ClienServiceViewModel extends BaseViewModel {
       notifyListeners();
     }
   }
-      //submit  nesrea test template
+
+  //submit  nesrea test template
   submitNesreaTemplate({
     required int samplePtId,
     required int NesreaFieldId,

@@ -171,7 +171,11 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
             ),
           ),
 
+          
+          
           //list of sample tests
+         
+         
           ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
@@ -622,6 +626,9 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
         });
   }
 
+ 
+ 
+ 
   //run for dpr
   runDPRSingles({
     required int index,
@@ -632,13 +639,11 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
-
     _clientProvider.runEachDPRTest(
         Id: Id,
         DPRFieldId: DPRFieldId,
         TestLimit: _textLimitControllers[index].text,
         TestResult: _textResultControllers[index].text);
-
     await Future.delayed(const Duration(seconds: 5), () async {
       _clientProvider.getAllClients();
       if (_clientProvider.runEachDPRData.data != null) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/providers/provider_services.dart';
@@ -25,6 +26,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
     super.initState();
   }
 
+  @override
+  void didChangeDependencies() {
+    var _clientViewModel = ref.watch(clientViewModel);
+    _clientViewModel.getAllClients();
+    //  values(context);
+    super.didChangeDependencies();
+  }
+
+  GetStorage userdata = GetStorage();
   Future<bool> _onWillPop() async {
     return (await showDialog(
           context: context,
@@ -108,7 +118,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                             fontWeight: FontWeight.w600,
                                             color: Colors.black,
                                             fontSize: 20)),
-                                    Text('',
+                                    Text(userdata.read('name'),
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.bold,
@@ -259,8 +269,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         InkWell(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    SelectReportTemplateType()));
+                                builder: (context) => ReportPage()));
                           },
                           child: Container(
                             height: MediaQuery.of(context).size.height / 5,

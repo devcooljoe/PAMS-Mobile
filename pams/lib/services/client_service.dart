@@ -7,6 +7,7 @@ import 'package:pams/http/api_manager.dart';
 import 'package:pams/models/add_location_model.dart';
 import 'package:pams/models/add_location_request_model.dart';
 import 'package:pams/models/customer_response_model.dart';
+import 'package:pams/models/dpr_result_activities_model.dart';
 import 'package:pams/models/get_location_response.dart';
 import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
@@ -34,7 +35,10 @@ class ClientServiceImplementation extends ApiManager {
   final submitDPRTemplate = '/FieldScientistAnalysisDPR/submit-dpr-TestResult';
   final submitFMENVTemplate =
       '/FieldScientistAnalysisFMEnv/submit-fmenv-test-Testresult';
-      final submitNESREATemplate  = '/FieldScientistAnalysisNesrea/submit-nesrea-test-Testresult';
+  final submitNESREATemplate =
+      '/FieldScientistAnalysisNesrea/submit-nesrea-test-Testresult';
+  final getDPRResultActivityUrl =
+      '/FieldScientistAnalysisDPR/GetAllDPRTestByAnalystIdWithNoPagination';
 
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
@@ -46,6 +50,7 @@ class ClientServiceImplementation extends ApiManager {
     } else if (response.statusCode == 401) {
       box.erase();
       Get.offAll(() => AuthPage());
+      return CustomerResponseModel(status: false);
     } else {
       return CustomerResponseModel(status: false);
     }
@@ -232,7 +237,7 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
-    //submit Nesrea Template
+  //submit Nesrea Template
   Future<RunSimpleTestResponseModel> submitNESREATestTemplate(
       {required int samplePtId,
       required int NesreaFieldId,
@@ -255,6 +260,37 @@ class ClientServiceImplementation extends ApiManager {
       return RunSimpleTestResponseModel.fromJson(response.data);
     } else {
       return RunSimpleTestResponseModel(status: false);
+    }
+  }
+
+  //report screen
+
+  //get dpr result activities
+
+  Future<DprResultActivitiesModel?> getDPRResultActivities(
+      {required String clientId}) async {
+    var token = box.read('token');
+    final response = await getHttp(
+        getDPRResultActivityUrl + '?clientId=$clientId',
+        token: token);
+    if (response.responseCodeError == null) {
+      return DprResultActivitiesModel.fromJson(response.data);
+    } else {
+      return DprResultActivitiesModel(status: false);
+    }
+  }
+
+  //get FMEnv result activities
+  Future<DprResultActivitiesModel?> getFMENVResultActivities(
+      {required String clientId}) async {
+    var token = box.read('token');
+    final response = await getHttp(
+        getDPRResultActivityUrl + '?clientId=$clientId',
+        token: token);
+    if (response.responseCodeError == null) {
+      return DprResultActivitiesModel.fromJson(response.data);
+    } else {
+      return DprResultActivitiesModel(status: false);
     }
   }
 }

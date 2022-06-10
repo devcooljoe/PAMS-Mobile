@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/images.dart';
@@ -16,10 +17,10 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
+  GetStorage userdata = GetStorage();
   @override
   Widget build(BuildContext context) {
     var _authViewModel = ref.watch(authViewModel);
-    var user = _authViewModel.userData.data!.returnObject;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -54,7 +55,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     shape: BoxShape.circle),
               ),
-              Text(user!.fullname!,
+              Text(userdata.read('name') ?? "",
                   style: TextStyle(
                     fontSize: 30,
                   )),
@@ -82,7 +83,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(user.fullname!,
+                      Text(userdata.read('name'),
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -116,7 +117,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(user.role![0],
+                      Text(userdata.read('role'),
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -130,8 +131,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => EditEmail()));
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(builder: (context) => EditEmail()));
                 },
                 child: Container(
                   margin: EdgeInsets.only(top: 20),
@@ -158,7 +159,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(user.email!,
+                            Text(userdata.read('email'),
                                 style: TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,
@@ -169,8 +170,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                     color: CustomColors.blackColor)),
                           ],
                         ),
-                        Icon(Icons.arrow_forward_ios_sharp,
-                            size: 16, color: CustomColors.blackColor),
+                        // Icon(Icons.arrow_forward_ios_sharp,
+                        //     size: 16, color: CustomColors.blackColor),
                       ],
                     ),
                   ),

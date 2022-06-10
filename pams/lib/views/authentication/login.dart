@@ -30,7 +30,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     var _authViewModel = ref.watch(authViewModel);
-    var _loading = ref.watch(loadingState);
+    bool _loading = false;
     return Scaffold(
       backgroundColor: Color(0xff194A00),
       body: ListView(
@@ -168,7 +168,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 15),
                                 child: Center(
-                                  child: _loading
+                                  child: _loading == true
                                       ? SizedBox(
                                           height: 20,
                                           width: 20,
@@ -186,7 +186,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ),
                             ),
                             onTap: () async {
-                              _loading = true;
+                             setState(() {
+                                _loading = true;
+                             });
                               final _validate =
                                   _authViewModel.validateAndSave(_formKey);
                               if (_validate) {
