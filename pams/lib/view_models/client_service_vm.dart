@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/models/add_location_model.dart';
 import 'package:pams/models/add_location_request_model.dart';
 import 'package:pams/models/customer_response_model.dart';
+import 'package:pams/models/dpr_result_activities_model.dart';
+import 'package:pams/models/fmenv_result_activity_model.dart';
 import 'package:pams/models/future_manager.dart';
 import 'package:pams/models/get_location_response.dart';
+import 'package:pams/models/nesrea_result_activity_model.dart';
 import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
 import 'package:pams/providers/clients_data_provider.dart';
@@ -27,6 +30,12 @@ class ClienServiceViewModel extends BaseViewModel {
       FutureManager();
   FutureManager<RunSimpleTestResponseModel> runEachNESREAData = FutureManager();
   FutureManager<RunSimpleTestResponseModel> submitNESREATemplateData =
+      FutureManager();
+  FutureManager<DprResultActivitiesModel> dprResultActivityData =
+      FutureManager();
+  FutureManager<FmenResultActivitiesModel> fmenvResultActivityData =
+      FutureManager();
+  FutureManager<NesreaResultActivitiesModel> nesreaResultActivityData =
       FutureManager();
 
   ClienServiceViewModel(this.reader) : super(reader) {
@@ -254,6 +263,47 @@ class ClienServiceViewModel extends BaseViewModel {
       notifyListeners();
     } else {
       submitNESREATemplateData.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  getDPRResultActivityData() async {
+    dprResultActivityData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).getDPRResultActivities();
+    if (res!.status == true) {
+      dprResultActivityData.onSuccess(res);
+
+      notifyListeners();
+    } else {
+      dprResultActivityData.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  getFMENVResultActivityData() async {
+    fmenvResultActivityData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).getFMENVResultActivities();
+    if (res!.status == true) {
+      fmenvResultActivityData.onSuccess(res);
+
+      notifyListeners();
+    } else {
+      fmenvResultActivityData.onError('Error');
+      notifyListeners();
+    }
+  }
+
+  getNESREAResultActivityData() async {
+    nesreaResultActivityData.load();
+    notifyListeners();
+    final res = await reader(clientServiceProvider).getNESREAResultActivities();
+    if (res!.status == true) {
+      nesreaResultActivityData.onSuccess(res);
+      notifyListeners();
+    } else {
+      nesreaResultActivityData.onError('Error');
       notifyListeners();
     }
   }

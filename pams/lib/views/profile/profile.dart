@@ -4,10 +4,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/images.dart';
-import 'package:pams/utils/shared_pref_manager.dart';
 import 'package:pams/views/authentication/auth.dart';
-import 'package:pams/views/profile/editemail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -214,6 +213,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  GetStorage box = GetStorage();
   Future<bool> _onWillPop() async {
     print("======Logout=======");
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -230,10 +230,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               TextButton(
                 onPressed: () {
-                  prefs.remove("apiToken");
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => AuthPage()),
-                      (route) => false);
+                  box.erase();
+                  userdata.erase();
+                  Get.offAll(() => AuthPage());
                 },
                 child: new Text('Yes'),
               ),

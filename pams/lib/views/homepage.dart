@@ -268,6 +268,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ),
                         InkWell(
                           onTap: () {
+                            _clientViewModel.getDPRResultActivityData();
+                            _clientViewModel.getFMENVResultActivityData();
+                            _clientViewModel.getNESREAResultActivityData();
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => ReportPage()));
                           },

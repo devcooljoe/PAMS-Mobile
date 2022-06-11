@@ -24,11 +24,8 @@ class _CustomDropDownState extends State<CustomDropDown> {
           _visibility = !_visibility;
         });
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: CustomColors.grey.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(10.r),
-        ),
+      child: Card(
+        elevation: 4,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: Column(

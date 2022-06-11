@@ -11,7 +11,7 @@ class ViewSubmittedDPRtest extends StatefulWidget {
   final String? testName;
 
   const ViewSubmittedDPRtest(
-      {Key? key, this.name, this.unit, this.limit, this.result, this.testName})
+      {Key? key,required this.name,required this.unit,required this.limit,required this.result,required this.testName})
       : super(key: key);
 
   @override
