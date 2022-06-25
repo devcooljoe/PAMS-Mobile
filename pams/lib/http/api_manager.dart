@@ -19,7 +19,7 @@ abstract class ApiManager {
     final options = BaseOptions(
       baseUrl: baseURL,
       receiveDataWhenStatusError: true,
-      connectTimeout: 60 * 1000, // 60 seconds
+      connectTimeout: 90 * 1000, // 60 seconds
       receiveTimeout: 90 * 1000, // 90 seconds
     );
 

@@ -9,7 +9,7 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/images.dart';
 import 'package:pams/views/clients/customerList.dart';
 import 'package:pams/views/profile/profile.dart';
-import 'package:pams/views/report/select_report_template_type.dart';
+import 'package:pams/views/report/view_test_reports.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 

@@ -8,16 +8,18 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/notify_user.dart';
 import 'package:pams/views/clients/location/offline/add_location_database_helper.dart';
 
-class AddLocation extends ConsumerStatefulWidget {
+class AddOfflineLocationScreen extends ConsumerStatefulWidget {
   final String? clientID;
 
-  const AddLocation({Key? key, this.clientID}) : super(key: key);
+  const AddOfflineLocationScreen({Key? key, this.clientID}) : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _AddLocationState();
+  ConsumerState<ConsumerStatefulWidget> createState() =>
+      _AddOfflineLocationScreenState();
 }
 
-class _AddLocationState extends ConsumerState<AddLocation> {
+class _AddOfflineLocationScreenState
+    extends ConsumerState<AddOfflineLocationScreen> {
   TextEditingController name = TextEditingController();
   TextEditingController description = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -41,7 +43,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Add Sample Point",
+        title: Text("Add Offline Sample Point",
             style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: Colors.white,
@@ -90,7 +92,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
         color: Colors.white,
         child: InkWell(
           onTap: () async {
-            addLocation();
+            addOfflineLocation();
           },
           child: Container(
             margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -122,7 +124,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
 
   bool update = false;
 
-  Future addLocation() async {
+  Future addOfflineLocationScreen() async {
     var _clientViewmodel = ref.watch(clientViewModel);
     setState(() {
       update = true;
@@ -174,7 +176,7 @@ class _AddLocationState extends ConsumerState<AddLocation> {
         description: description.text,
       );
 
-      var data = await LocationDataBaseHelper.instance.add(model).then((value) {
+       await LocationDataBaseHelper.instance.add(model).then((value) {
         setState(() {
           update = false;
         });

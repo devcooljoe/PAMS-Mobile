@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../utils/constants.dart';
-import '../../../styles/custom_colors.dart';
-import 'nesrea_implementation.dart';
+import '../../styles/custom_colors.dart';
 
-class RunNESREATestScreen extends StatefulWidget {
-  final Map<String, dynamic>? data;
-  final String? title;
-  final int? locationId;
+class ViewSubmittedDPRtest extends StatefulWidget {
+  final String? name;
+  final String? unit;
+  final String? limit;
+  final String? result;
+  final String? testName;
 
-  const RunNESREATestScreen({Key? key, this.data, this.title, this.locationId})
+  const ViewSubmittedDPRtest(
+      {Key? key,required this.name,required this.unit,required this.limit,required this.result,required this.testName})
       : super(key: key);
 
   @override
-  _RunNESREATestScreenState createState() => _RunNESREATestScreenState();
+  _ViewSubmittedDPRtestState createState() => _ViewSubmittedDPRtestState();
 }
 
-class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
+class _ViewSubmittedDPRtestState extends State<ViewSubmittedDPRtest> {
   TextEditingController testName = TextEditingController();
   TextEditingController testUnit = TextEditingController();
   TextEditingController testLimit = TextEditingController();
@@ -29,26 +31,10 @@ class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
   }
 
   updateFields() async {
-    testName.text = widget.data!['testName'];
-    testUnit.text = widget.data!['testUnit'];
-    if (widget.data!['testLimit'] == null) {
-      setState(() {
-        testLimit.text = '';
-      });
-    } else {
-      setState(() {
-        testLimit.text = widget.data!['testLimit'];
-      });
-    }
-    if (widget.data!['testResult'] == 0.0) {
-      setState(() {
-        testResult.text = '';
-      });
-    } else {
-      setState(() {
-        testResult.text = widget.data!['testResult'].toString();
-      });
-    }
+    testName.text = widget.name!;
+    testUnit.text = widget.unit!;
+    testLimit.text = widget.limit!;
+    testResult.text = widget.result!;
   }
 
   @override
@@ -65,7 +51,7 @@ class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(widget.title!,
+        title: Text(widget.testName!,
             style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: CustomColors.background,
@@ -111,6 +97,7 @@ class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
               ),
               TextFormField(
                 controller: testLimit,
+                readOnly: true,
                 validator: (value) {
                   if (value!.isEmpty == true) {
                     return 'Field is required';
@@ -127,6 +114,7 @@ class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
               ),
               TextFormField(
                 controller: testResult,
+                readOnly: true,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value!.isEmpty == true) {
@@ -146,91 +134,38 @@ class _RunNESREATestScreenState extends State<RunNESREATestScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        elevation: 0,
-        color: Colors.white,
-        child: InkWell(
-          onTap: () async {
-            runTest();
-          },
-          child: Container(
-            margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-            height: 60,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                color: CustomColors.mainDarkGreen,
-                borderRadius: BorderRadius.circular(10)),
-            child: Center(
-              child: update
-                  ? SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: CustomColors.background,
-                      ),
-                    )
-                  : Text(
-                      'Save',
-                      style: TextStyle(
-                          color: CustomColors.background, fontSize: 18),
-                    ),
-            ),
-          ),
-        ),
-      ),
+      // bottomNavigationBar: BottomAppBar(
+      //   elevation: 0,
+      //   color: Colors.white,
+      //   child: InkWell(
+      //     onTap: () async {
+      //       runTest();
+      //     },
+      //     child: Container(
+      //       margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+      //       height: 60,
+      //       width: MediaQuery.of(context).size.width,
+      //       decoration: BoxDecoration(
+      //           color: CustomColors.mainDarkGreen,
+      //           borderRadius: BorderRadius.circular(10)),
+      //       child: Center(
+      //         child: update
+      //             ? SizedBox(
+      //                 height: 20,
+      //                 width: 20,
+      //                 child: CircularProgressIndicator(
+      //                   color: CustomColors.background,
+      //                 ),
+      //               )
+      //             : Text(
+      //                 'Save',
+      //                 style: TextStyle(
+      //                     color: CustomColors.background, fontSize: 18),
+      //               ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
-  }
-
-  bool update = false;
-  Future runTest() async {
-    setState(() {
-      update = true;
-    });
-
-    final form = _formKey.currentState;
-    if (!form!.validate()) {
-      setState(() {
-        update = false;
-      });
-    } else {
-      form.save();
-      final result = await NESREAImplementation()
-          .runTest(widget.data!['nesreaFieldId'], testName.text.toString(), testLimit.text.toString(),
-              testResult.text.toString())
-          .catchError((onError) {
-        setState(() {
-          update = false;
-        });
-        Constants().notify('Oops... Something went wrong, Try again later');
-      });
-      print('done $result');
-      if (result!['status'] == true) {
-        Constants().notify(result['returnObject']);
-        await getNESREAtemplates();
-        if (nesreatemplates != null) {
-          setState(() {
-            update = false;
-          });
-          Navigator.of(context).pop(nesreatemplates);
-        }
-      } else {
-        setState(() {
-          update = false;
-        });
-      }
-    }
-  }
-
-  // execute this function below after a running the above function.
-  Map<String, dynamic>? nesreatemplates;
-
-  Future getNESREAtemplates() async {
-    final result =
-        await NESREAImplementation().getNESREATemplates(widget.locationId);
-    if (result != null) {
-      setState(() {
-        nesreatemplates = result;
-      });
-    }
   }
 }

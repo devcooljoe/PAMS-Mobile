@@ -9,8 +9,10 @@ import 'package:pams/utils/constants.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:pams/views/clients/location/edit_location.dart';
-import 'package:pams/views/clients/select_sample_type.dart';
-import 'package:pams/views/result_template_screen.dart';
+import 'package:pams/views/clients/location/offline/add_location_database_helper.dart';
+import 'package:pams/views/clients/location/offline/add_offline_location.dart';
+import 'package:pams/views/field_sampling/result_template_screen.dart';
+import 'package:pams/views/samples/data/microbial/database_helper.dart';
 import 'package:pams/widgets/list_widget.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -164,26 +166,26 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                         SizedBox(
                                           height: 20,
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 10),
-                                          child: TextFormField(
-                                            inputFormatters: [
-                                              FilteringTextInputFormatter.deny(
-                                                  RegExp('[ ]')),
-                                            ],
-                                            decoration: InputDecoration(
-                                                hintText: 'Sample Points',
-                                                prefixIcon: Icon(
-                                                  Icons.search,
-                                                  color: Colors.black,
-                                                ),
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10))),
-                                          ),
-                                        ),
+                                        // Padding(
+                                        //   padding: const EdgeInsets.symmetric(
+                                        //       horizontal: 20, vertical: 10),
+                                        //   child: TextFormField(
+                                        //     inputFormatters: [
+                                        //       FilteringTextInputFormatter.deny(
+                                        //           RegExp('[ ]')),
+                                        //     ],
+                                        //     decoration: InputDecoration(
+                                        //         hintText: 'Sample Points',
+                                        //         prefixIcon: Icon(
+                                        //           Icons.search,
+                                        //           color: Colors.black,
+                                        //         ),
+                                        //         border: OutlineInputBorder(
+                                        //             borderRadius:
+                                        //                 BorderRadius.circular(
+                                        //                     10))),
+                                        //   ),
+                                        // ),
                                         ListView.builder(
                                             itemCount: clientData
                                                 .samplePointLocations!.length,
@@ -250,13 +252,120 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                         ),
 
                         //Offline Tab
-                        MediaQuery.removePadding(
-                          context: context,
-                          removeRight: false,
-                          removeTop: true,
-                          removeLeft: false,
-                          child: ListView(
-                            children: [],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: FutureBuilder(
+                            future: LocationDataBaseHelper.instance
+                                .getOfflineLocation(),
+                            builder: ((context, snapshot) {
+                              if (snapshot.data == null) {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('No Locations yet'),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      InkWell(
+                                          onTap: () async {
+                                            // _clientViewmodel.getClientLocation(
+                                            //     clientId: clientData.id!);
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AddOfflineLocationScreen(
+                                                          clientID:
+                                                              clientData.id,
+                                                        )));
+                                          },
+                                          child: Text(
+                                            'Create one',
+                                            style: TextStyle(
+                                                color:
+                                                    CustomColors.mainDarkGreen,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 17.sp),
+                                          ))
+                                    ],
+                                  ),
+                                );
+                              } else if (snapshot.hasData) {
+                                return ListView(
+                                  physics: BouncingScrollPhysics(),
+                                  children: [
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    ListView.builder(
+                                        itemCount: 1,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemBuilder: (context, index) {
+                                          // var data = clientData
+                                          //     .samplePointLocations;
+
+                                          return InkWell(
+                                            onTap: () {
+                                              // Get.to(
+                                              //     () =>
+                                              //         ResultTemplatePage(
+                                              //           samplePointName:
+                                              //               data![index]
+                                              //                   .name,
+                                              //           samplePointIndex:
+                                              //               index,
+                                              //           samplePointId: data[
+                                              //                   index]
+                                              //               .sampleLocationId,
+                                              //         ),
+                                              //     arguments: clientData);
+                                            },
+                                            child: ListWidget(
+                                              title: 'name',
+                                              subTitle: 'description',
+                                              trailing: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 10),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    // Navigator.push(
+                                                    //     context,
+                                                    //     MaterialPageRoute(
+                                                    //         builder:
+                                                    //             (context) =>
+                                                    //                 EditLocationPage(
+                                                    //                   clientID:
+                                                    //                       clientData.id,
+                                                    //                   name:
+                                                    //                       data[index].name,
+                                                    //                   description:
+                                                    //                       data[index].description,
+                                                    //                   locatoionId:
+                                                    //                       data[index].sampleLocationId,
+                                                    //                 )));
+                                                  },
+                                                  child: Icon(
+                                                    Icons.edit,
+                                                    color: CustomColors
+                                                        .mainDarkGreen,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        })
+                                  ],
+                                );
+                              } else {
+                                return Center(
+                                    child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(),
+                                ));
+                              }
+                            }),
                           ),
                         ),
                       ]),
@@ -266,9 +375,6 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
               ),
             ),
           ),
-        
-        
-        
         ],
       ),
     );

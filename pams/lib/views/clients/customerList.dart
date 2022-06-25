@@ -7,7 +7,7 @@ import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/widgets/list_widget.dart';
 
-import 'add_customer.dart';
+
 import 'location/client_location.dart';
 import 'package:get/get.dart';
 

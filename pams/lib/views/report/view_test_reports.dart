@@ -9,7 +9,7 @@ import 'package:pams/providers/provider_services.dart';
 import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pams/views/report/dpr/view_submitted_dpr_test.dart';
+import 'package:pams/views/report/report_test_details.dart';
 import 'package:pams/widgets/custom_drop_down.dart';
 import 'package:get/get.dart';
 
