@@ -6,16 +6,23 @@
     "configurations": [
         {
             "name": "pams",
-            "cwd": "pams/pams",
+            "cwd": "pams",
             "request": "launch",
             "type": "dart"
         },
         {
             "name": "pams (profile mode)",
-            "cwd": "pams/pams",
+            "cwd": "pams",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
+        },
+        {
+            "name": "pams (release mode)",
+            "cwd": "pams",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
         }
     ]
 }
