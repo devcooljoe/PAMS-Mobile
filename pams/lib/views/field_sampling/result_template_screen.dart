@@ -12,7 +12,7 @@ import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' as multipart;
 
 class ResultTemplatePage extends ConsumerStatefulWidget {
   String? samplePointName;
@@ -26,8 +26,7 @@ class ResultTemplatePage extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() =>
-      _ResultTemplatePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ResultTemplatePageState();
 }
 
 class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
@@ -40,23 +39,22 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   final ImagePicker _picker = ImagePicker();
 
   takePhoto(ImageSource source, cxt) async {
-    final pickedFile = await _picker.pickImage(
-        source: source, imageQuality: 50, maxHeight: 500.0, maxWidth: 500.0);
+    final pickedFile = await _picker.pickImage(source: source, imageQuality: 50, maxHeight: 500.0, maxWidth: 500.0);
     setState(() {
       _image = pickedFile;
-      print(_image!.path);
+      // print(_image!.path);
     });
 
     // Navigator.pop(cxt);
   }
 
-  List<TextEditingController> _textResultControllers = [];
-  List<TextEditingController> _textLimitControllers = [];
+  List<TextEditingController> textResultControllers = [];
+  List<TextEditingController> textLimitControllers = [];
 
   // values(BuildContext context) {
   //   var _sampleProvider = ref.watch(categoryViewModel);
-  //   _textResultControllers.add(TextEditingController());
-  //   _textLimitControllers.add(TextEditingController());
+  //   textResultControllers.add(TextEditingController());
+  //   textLimitControllers.add(TextEditingController());
   //   var clientData =
   //       ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
   //   var mydata = clientData.samplePointLocations!;
@@ -68,10 +66,10 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   //               .nesreaSamples!
   //               .nesreaSamples!;
   //   for (var i = 0; i < mylocations.length; i++) {
-  //     _textResultControllers.add(TextEditingController());
-  //     _textLimitControllers.add(TextEditingController());
-  //     _textLimitControllers[i].text = mylocations[i].testLimit!;
-  //     _textResultControllers[i].text = mylocations[i].testResult!;
+  //     textResultControllers.add(TextEditingController());
+  //     textLimitControllers.add(TextEditingController());
+  //     textLimitControllers[i].text = mylocations[i].testLimit!;
+  //     textResultControllers[i].text = mylocations[i].testResult!;
   //   }
   // }
 
@@ -85,10 +83,18 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   bool changeTemplate = false;
   @override
   Widget build(BuildContext context) {
-    var clientData =
-        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+    var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     var _sampleProvider = ref.watch(categoryViewModel);
-    var _clientProvider = ref.watch(clientViewModel);
+
+    var length = _sampleProvider.templateIndex == 0
+        ? clientData.samplePointLocations![widget.samplePointIndex!].dprSamples!.dprSamples!.length
+        : _sampleProvider.templateIndex == 1
+            ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples!.length
+            : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples!.length;
+
+    List<String> textResultValues = List.generate(length, (index) => '');
+    List<String> textLimitValues = List.generate(length, (index) => '');
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -118,8 +124,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
         ],
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Result Templates",
-            style: TextStyle(color: Colors.black, fontSize: 20)),
+        title: Text("Result Templates", style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: CustomColors.background,
       body: ListView(
@@ -135,10 +140,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 20),
                 child: Row(
-                  children: [
-                    Text(widget.samplePointName!),
-                    Icon(Icons.arrow_drop_down)
-                  ],
+                  children: [Text(widget.samplePointName!), Icon(Icons.arrow_drop_down)],
                 ),
               ),
             ),
@@ -147,9 +149,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 20),
                 child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.grey.withOpacity(0.4)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: Colors.grey.withOpacity(0.4)),
                   child: InkWell(
                     onTap: () {
                       _selectTemplateType();
@@ -159,10 +159,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                       padding: const EdgeInsets.all(4.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(_sampleProvider.categoryCode),
-                          Icon(Icons.arrow_drop_down)
-                        ],
+                        children: [Text(_sampleProvider.categoryCode), Icon(Icons.arrow_drop_down)],
                       ),
                     ),
                   ),
@@ -171,55 +168,34 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
             ),
           ),
 
-          
-          
           //list of sample tests
-         
-         
+
           ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemCount: _sampleProvider.templateIndex == 0
-                  ? clientData.samplePointLocations![widget.samplePointIndex!]
-                      .dprSamples!.dprSamples!.length
+                  ? clientData.samplePointLocations![widget.samplePointIndex!].dprSamples!.dprSamples!.length
                   : _sampleProvider.templateIndex == 1
-                      ? clientData
-                          .samplePointLocations![widget.samplePointIndex!]
-                          .fmenvSamples!
-                          .fmenvSamples!
-                          .length
-                      : clientData
-                          .samplePointLocations![widget.samplePointIndex!]
-                          .nesreaSamples!
-                          .nesreaSamples!
-                          .length,
+                      ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples!.length
+                      : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples!.length,
               itemBuilder: ((context, index) {
-                _textResultControllers.add(TextEditingController());
-                _textLimitControllers.add(TextEditingController());
+                textResultControllers.add(TextEditingController());
+                textLimitControllers.add(TextEditingController());
                 var data = _sampleProvider.templateIndex == 0
-                    ? clientData.samplePointLocations![widget.samplePointIndex!]
-                        .dprSamples!.dprSamples![index]
+                    ? clientData.samplePointLocations![widget.samplePointIndex!].dprSamples!.dprSamples![index]
                     : _sampleProvider.templateIndex == 1
-                        ? clientData
-                            .samplePointLocations![widget.samplePointIndex!]
-                            .fmenvSamples!
-                            .fmenvSamples![index]
-                        : clientData
-                            .samplePointLocations![widget.samplePointIndex!]
-                            .nesreaSamples!
-                            .nesreaSamples![index];
+                        ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples![index]
+                        : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples![index];
 
-                _textLimitControllers[index].text = data.testLimit!;
-                _textResultControllers[index].text = data.testResult!;
+                textLimitControllers[index].text = data.testLimit!;
+                textResultControllers[index].text = data.testResult!;
 
                 return Padding(
-                  padding:
-                      const EdgeInsets.only(right: 10, left: 10, bottom: 15),
+                  padding: const EdgeInsets.only(right: 10, left: 10, bottom: 15),
                   child: Card(
                     elevation: 7,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -228,8 +204,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                             child: Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(data.testName!),
                                     Text('Test Limit'),
@@ -240,31 +215,22 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                   height: 15,
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(data.testUnit!),
                                     SizedBox(
                                       width: 230,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           SizedBox(
                                             width: 100,
-                                            child: TextFormField(
-                                              onChanged: (value) {},
-                                              controller:
-                                                  _textLimitControllers[index],
-                                              decoration: InputDecoration(
-                                                  hintText: data.testLimit,
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          vertical: 13,
-                                                          horizontal: 5),
-                                                  border: OutlineInputBorder(
-                                                      borderSide:
-                                                          BorderSide())),
+                                            child: TextField(
+                                              onChanged: (value) {
+                                                textLimitValues[index] = value;
+                                              },
+                                              // controller: textLimitControllers[index],
+                                              decoration: InputDecoration(hintText: data.testLimit, contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 5), border: OutlineInputBorder(borderSide: BorderSide())),
                                             ),
                                           ),
                                           SizedBox(
@@ -272,17 +238,12 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                           ),
                                           SizedBox(
                                             width: 100,
-                                            child: TextFormField(
-                                              controller:
-                                                  _textResultControllers[index],
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.symmetric(
-                                                          vertical: 13,
-                                                          horizontal: 5),
-                                                  border: OutlineInputBorder(
-                                                      borderSide:
-                                                          BorderSide())),
+                                            child: TextField(
+                                              onChanged: (value) {
+                                                textResultValues[index] = value;
+                                              },
+                                              // controller: textResultControllers[index],
+                                              decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 5), border: OutlineInputBorder(borderSide: BorderSide())),
                                             ),
                                           ),
                                         ],
@@ -297,19 +258,10 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                             return InkWell(
                               onTap: () async {
                                 _sampleProvider.templateIndex == 0
-                                    ? runDPRSingles(
-                                        index: index,
-                                        Id: data.id!,
-                                        DPRFieldId: data.dprFieldId!)
+                                    ? runDPRSingles(index: index, Id: data.id!, DPRFieldId: data.dprFieldId!)
                                     : _sampleProvider.templateIndex == 1
-                                        ? runFMENVSingles(
-                                            index: index,
-                                            Id: data.id!,
-                                            FMEnvFieldId: data.fmenvFieldId!)
-                                        : runNESREASingles(
-                                            index: index,
-                                            Id: data.id!,
-                                            NesreaFieldId: data.nesreaFieldId!);
+                                        ? runFMENVSingles(index: index, Id: data.id!, FMEnvFieldId: data.fmenvFieldId!)
+                                        : runNESREASingles(index: index, Id: data.id!, NesreaFieldId: data.nesreaFieldId!);
 
                                 // setState(
                                 //   () {
@@ -321,8 +273,8 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                 // _clientProvider.runEachDPRTest(
                                 //     Id: data.id!,
                                 //     DPRFieldId: data.dprFieldId!,
-                                //     TestLimit: _textLimitControllers[i].text,
-                                //     TestResult: _textResultControllers[i].text);
+                                //     TestLimit: textLimitControllers[i].text,
+                                //     TestResult: textResultControllers[i].text);
                                 // setState(
                                 //   () {
                                 //     update = -1;
@@ -369,9 +321,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                 width: 300,
                 decoration: BoxDecoration(
                   image: _image == null
-                      ? DecorationImage(
-                          image: AssetImage('assets/images/field.jpg'),
-                          fit: BoxFit.fitWidth)
+                      ? DecorationImage(image: AssetImage('assets/images/field.jpg'), fit: BoxFit.fitWidth)
                       : DecorationImage(
                           image: FileImage(
                             File(_image!.path.toString()),
@@ -402,9 +352,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
               margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
               height: 60,
               width: 300,
-              decoration: BoxDecoration(
-                  color: CustomColors.mainDarkGreen,
-                  borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: CustomColors.mainDarkGreen, borderRadius: BorderRadius.circular(10)),
               child: Center(
                 child: saveBtn
                     ? SizedBox(
@@ -416,8 +364,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                       )
                     : Text(
                         'Save',
-                        style: TextStyle(
-                            color: CustomColors.background, fontSize: 18),
+                        style: TextStyle(color: CustomColors.background, fontSize: 18),
                       ),
               ),
             ),
@@ -428,8 +375,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   }
 
   void _selectSamplePoint() {
-    var clientData =
-        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+    var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     showModalBottomSheet(
         context: context,
         shape: RoundedRectangleBorder(
@@ -441,11 +387,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
           return SizedBox(
             height: 500.0,
             child: Container(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0))),
+                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0))),
                 child: ListView(
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
@@ -456,8 +398,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                     Text(
                       'DPR Sample Points',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.sp, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       height: 20.h,
@@ -476,11 +417,8 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                     unSelectedSa = false;
                                   });
                                   setState(() {
-                                    widget.samplePointName = clientData
-                                        .samplePointLocations![index].name!;
-                                    widget.samplePointId = clientData
-                                        .samplePointLocations![index]
-                                        .sampleLocationId!;
+                                    widget.samplePointName = clientData.samplePointLocations![index].name!;
+                                    widget.samplePointId = clientData.samplePointLocations![index].sampleLocationId!;
                                   });
                                   Navigator.pop(context);
                                 }),
@@ -489,18 +427,14 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                   style: TextStyle(fontSize: 15),
                                 ),
                                 subtitle: Text(
-                                  clientData.samplePointLocations![index]
-                                      .description!,
+                                  clientData.samplePointLocations![index].description!,
                                   style: TextStyle(fontSize: 13),
                                 ),
                                 trailing: Stack(
                                   children: [
                                     Visibility(
                                       visible: unSelectedSa,
-                                      child: widget.samplePointId ==
-                                              clientData
-                                                  .samplePointLocations![index]
-                                                  .sampleLocationId!
+                                      child: widget.samplePointId == clientData.samplePointLocations![index].sampleLocationId!
                                           ? CircleAvatar(
                                               radius: 12,
                                               child: Icon(
@@ -508,8 +442,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                                 color: CustomColors.background,
                                                 size: 13,
                                               ),
-                                              backgroundColor:
-                                                  CustomColors.mainDarkGreen)
+                                              backgroundColor: CustomColors.mainDarkGreen)
                                           : SizedBox(
                                               height: 1,
                                               width: 1,
@@ -525,8 +458,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                                 color: CustomColors.background,
                                                 size: 13,
                                               ),
-                                              backgroundColor:
-                                                  CustomColors.mainDarkGreen)
+                                              backgroundColor: CustomColors.mainDarkGreen)
                                           : SizedBox(
                                               height: 1,
                                               width: 1,
@@ -543,8 +475,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   }
 
   void _selectTemplateType() {
-    var clientData =
-        ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+    var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     var _sampleProvider = ref.watch(categoryViewModel);
     showModalBottomSheet(
         context: context,
@@ -557,11 +488,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
           return SizedBox(
             height: 500.0,
             child: Container(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0))),
+                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0))),
                 child: ListView(
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
@@ -572,8 +499,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                     Text(
                       'Sample Templates',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.sp, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       height: 20.h,
@@ -587,8 +513,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                             child: ListTile(
                               onTap: (() async {
                                 setState(() {
-                                  _sampleProvider.categoryCode =
-                                      sampleTemplates[index];
+                                  _sampleProvider.categoryCode = sampleTemplates[index];
 
                                   _sampleProvider.templateIndex = index;
                                 });
@@ -611,8 +536,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                         color: CustomColors.background,
                                         size: 13,
                                       ),
-                                      backgroundColor:
-                                          CustomColors.mainDarkGreen)
+                                      backgroundColor: CustomColors.mainDarkGreen)
                                   : SizedBox(
                                       height: 1,
                                       width: 1,
@@ -626,9 +550,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
         });
   }
 
- 
- 
- 
   //run for dpr
   runDPRSingles({
     required int index,
@@ -639,11 +560,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
-    _clientProvider.runEachDPRTest(
-        Id: Id,
-        DPRFieldId: DPRFieldId,
-        TestLimit: _textLimitControllers[index].text,
-        TestResult: _textResultControllers[index].text);
+    _clientProvider.runEachDPRTest(Id: Id, DPRFieldId: DPRFieldId, TestLimit: textLimitControllers[index], TestResult: textResultControllers[index]);
     await Future.delayed(const Duration(seconds: 5), () async {
       _clientProvider.getAllClients();
       if (_clientProvider.runEachDPRData.data != null) {
@@ -667,12 +584,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     });
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
-    var data = _clientProvider
-        .clientData
-        .data!
-        .returnObject![_sampleProvider.clientIndex!]
-        .samplePointLocations![widget.samplePointIndex!]
-        .dprSamples!;
+    var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].dprSamples!;
 
     _clientProvider.submitDPRTemplate(
       samplePtId: data.samplePointLocationId!,
@@ -680,8 +592,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       DPRTemplates: data.dprSamples,
-      Picture: await MultipartFile.fromFile(_image!.path,
-          filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {
@@ -709,11 +620,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
-    _clientProvider.runEachFMENVTest(
-        Id: Id,
-        FMEnvFieldId: FMEnvFieldId,
-        TestLimit: _textLimitControllers[index].text,
-        TestResult: _textResultControllers[index].text);
+    _clientProvider.runEachFMENVTest(Id: Id, FMEnvFieldId: FMEnvFieldId, TestLimit: textLimitControllers[index].text, TestResult: textResultControllers[index].text);
 
     await Future.delayed(const Duration(seconds: 5), () async {
       _clientProvider.getAllClients();
@@ -738,12 +645,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     });
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
-    var data = _clientProvider
-        .clientData
-        .data!
-        .returnObject![_sampleProvider.clientIndex!]
-        .samplePointLocations![widget.samplePointIndex!]
-        .fmenvSamples!;
+    var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].fmenvSamples!;
 
     _clientProvider.submitFmenvTemplate(
       samplePtId: data.samplePointLocationId!,
@@ -751,8 +653,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       FMENVTemplates: data.fmenvSamples,
-      Picture: await MultipartFile.fromFile(_image!.path,
-          filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {
@@ -780,11 +681,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
-    _clientProvider.runEachNESREATest(
-        Id: Id,
-        NesreaFieldId: NesreaFieldId,
-        TestLimit: _textLimitControllers[index].text,
-        TestResult: _textResultControllers[index].text);
+    _clientProvider.runEachNESREATest(Id: Id, NesreaFieldId: NesreaFieldId, TestLimit: textLimitControllers[index].text, TestResult: textResultControllers[index].text);
 
     await Future.delayed(const Duration(seconds: 5), () async {
       _clientProvider.getAllClients();
@@ -809,12 +706,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     });
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
-    var data = _clientProvider
-        .clientData
-        .data!
-        .returnObject![_sampleProvider.clientIndex!]
-        .samplePointLocations![widget.samplePointIndex!]
-        .nesreaSamples!;
+    var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].nesreaSamples!;
 
     _clientProvider.submitNesreaTemplate(
       samplePtId: data.samplePointLocationId!,
@@ -822,8 +714,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       NesreaTemplates: data.nesreaSamples,
-      Picture: await MultipartFile.fromFile(_image!.path,
-          filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {
