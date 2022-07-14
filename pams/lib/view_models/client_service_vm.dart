@@ -43,7 +43,7 @@ class ClienServiceViewModel extends BaseViewModel {
   }
 
   getAllClients() async {
-    clientData.load();
+    await clientData.load();
     notifyListeners();
     final res = await reader(clientServiceProvider).getAllClientData();
     if (res!.status == true) {
