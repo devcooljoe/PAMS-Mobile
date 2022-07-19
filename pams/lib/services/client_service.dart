@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
 import 'package:pams/http/api_manager.dart';
@@ -12,12 +13,18 @@ import 'package:pams/models/get_location_response.dart';
 import 'package:pams/models/nesrea_result_activity_model.dart';
 import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
+import 'package:pams/utils/connection_status.dart';
+import 'package:pams/utils/controller.dart';
 import 'package:pams/views/authentication/auth.dart';
 
 class ClientServiceImplementation extends ApiManager {
   final Reader reader;
   GetStorage box = GetStorage();
   GetStorage userdata = GetStorage();
+  // Creates a customer response model box offline.
+  GetStorage customerResponseModel = GetStorage();
+  // Read the current state of the controller.
+  PamsStateController _controller = Get.put<PamsStateController>(PamsStateController());
 
   final getAllClientURL = '/Client/GetAllClientField';
   final getClientLocaionUrl = '/FieldScientistAnalysisNesrea/get-all-Sample-locations-for-a-Client';
@@ -37,16 +44,38 @@ class ClientServiceImplementation extends ApiManager {
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
     var token = box.read('token');
-    final response = await getHttp(getAllClientURL, token: token);
-    if (response.responseCodeError == null) {
-      return CustomerResponseModel.fromJson(response.data);
-    } else if (response.statusCode == 401) {
-      box.erase();
-      userdata.erase();
-      Get.offAll(() => AuthPage());
-      return CustomerResponseModel(status: false);
+    // Update the internet connection status.
+    await ConnectionStatus.dataIsConnected();
+    // Check if there's no internet connection.
+    if (!_controller.connectionStatus.value) {
+      Fluttertoast.showToast(msg: "You're currently offline.");
+      // Make reference to the local values.
+      Map<String, dynamic> customerResponseData = {};
+      var _data = customerResponseModel.getKeys();
+      _data.forEach((key) {
+        final newEntries = <String, dynamic>{key: customerResponseModel.read(key)};
+        customerResponseData.addEntries(newEntries.entries);
+      });
+      return CustomerResponseModel.fromJson(customerResponseData);
     } else {
-      return CustomerResponseModel(status: false);
+      Fluttertoast.showToast(msg: "Internet connection detected.");
+      // Fetch data directly from the server.
+      final response = await getHttp(getAllClientURL, token: token);
+      if (response.responseCodeError == null) {
+        Map<String, dynamic> fetchedData = response.data;
+        List<String> fetchedDataKeys = fetchedData.keys.toList();
+        fetchedDataKeys.forEach((keys) async {
+          await customerResponseModel.write(keys, fetchedData[keys]);
+        });
+        return CustomerResponseModel.fromJson(response.data);
+      } else if (response.statusCode == 401) {
+        box.erase();
+        userdata.erase();
+        Get.offAll(() => AuthPage());
+        return CustomerResponseModel(status: false);
+      } else {
+        return CustomerResponseModel(status: false);
+      }
     }
   }
 

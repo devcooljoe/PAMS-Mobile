@@ -20,7 +20,7 @@ class ConnectionStatus {
     }
   }
 
-  static void dataIsConnected() async {
+  static Future<void> dataIsConnected() async {
     PamsStateController controller = Get.put<PamsStateController>(PamsStateController());
     try {
       final result = await InternetAddress.lookup('example.com');

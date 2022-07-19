@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
+import 'package:pams/widgets/customfield.dart';
 import 'package:pams/widgets/list_widget.dart';
 
 import 'location/client_location.dart';
 import 'package:get/get.dart';
 
-class CustomerList extends ConsumerStatefulWidget {
+class CustomerList extends ConsumerWidget {
   const CustomerList({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CustomerListState();
-}
-
-class _CustomerListState extends ConsumerState<CustomerList> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     var _clientViewModel = ref.watch(clientViewModel);
     var _sampleProvider = ref.watch(categoryViewModel);
     // var client = _clientViewModel.clientData.data!.returnObject!;
@@ -55,7 +50,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
               child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
             )
           : ListView(
@@ -66,18 +61,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: TextFormField(
-                    inputFormatters: [
-                      FilteringTextInputFormatter.deny(RegExp('[ ]')),
-                    ],
-                    decoration: InputDecoration(
-                        hintText: 'Sample sites',
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.black,
-                        ),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-                  ),
+                  child: CustomTextField(),
                 ),
                 _clientViewModel.clientData.data!.returnObject!.isEmpty == true
                     ? Center(
