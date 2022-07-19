@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
-import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/widgets/customfield.dart';
 import 'package:pams/widgets/list_widget.dart';
-
 
 import 'location/client_location.dart';
 import 'package:get/get.dart';
 
-class CustomerList extends ConsumerStatefulWidget {
+class CustomerList extends ConsumerWidget {
   const CustomerList({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _CustomerListState();
-}
-
-class _CustomerListState extends ConsumerState<CustomerList> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
     var _clientViewModel = ref.watch(clientViewModel);
     var _sampleProvider = ref.watch(categoryViewModel);
     // var client = _clientViewModel.clientData.data!.returnObject!;
@@ -36,8 +28,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Sample Site  List",
-            style: TextStyle(color: Colors.black, fontSize: 20)),
+        title: Text("Sample Site  List", style: TextStyle(color: Colors.black, fontSize: 20)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
@@ -59,7 +50,7 @@ class _CustomerListState extends ConsumerState<CustomerList> {
               child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
             )
           : ListView(
@@ -69,21 +60,8 @@ class _CustomerListState extends ConsumerState<CustomerList> {
                   height: 20,
                 ),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: TextFormField(
-                    inputFormatters: [
-                      FilteringTextInputFormatter.deny(RegExp('[ ]')),
-                    ],
-                    decoration: InputDecoration(
-                        hintText: 'Sample sites',
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: Colors.black,
-                        ),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: CustomTextField(),
                 ),
                 _clientViewModel.clientData.data!.returnObject!.isEmpty == true
                     ? Center(
@@ -92,23 +70,18 @@ class _CustomerListState extends ConsumerState<CustomerList> {
                     : ListView.builder(
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
-                        itemCount: _clientViewModel
-                            .clientData.data!.returnObject!.length,
+                        itemCount: _clientViewModel.clientData.data!.returnObject!.length,
                         itemBuilder: (BuildContext context, index) {
                           return InkWell(
                             onTap: () {
                               // _clientViewModel.getClientLocation(
                               //     clientId: client[index].id!);
                               _sampleProvider.clientIndex = index;
-                              Get.to(() => ClientLocation(),
-                                  arguments: _clientViewModel
-                                      .clientData.data!.returnObject![index]);
+                              Get.to(() => ClientLocation(), arguments: _clientViewModel.clientData.data!.returnObject![index]);
                             },
                             child: ListWidget(
-                              title: _clientViewModel
-                                  .clientData.data!.returnObject![index].name,
-                              subTitle: _clientViewModel
-                                  .clientData.data!.returnObject![index].email,
+                              title: _clientViewModel.clientData.data!.returnObject![index].name,
+                              subTitle: _clientViewModel.clientData.data!.returnObject![index].email,
                               trailing: Icon(
                                 Icons.arrow_forward_ios,
                                 size: 17,

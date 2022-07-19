@@ -29,7 +29,6 @@ abstract class ApiManager {
     setHeader(formdata: formdata, token: token);
     params?.removeWhere((key, value) => value == null);
     final fullRoute = '$baseURL$route';
-    print('this is full $fullRoute $params');
     return makeRequest(dio.get(
       fullRoute,
       queryParameters: params,
@@ -89,12 +88,10 @@ abstract class ApiManager {
       response = await future;
       if (kDebugMode) {
         _logger.log('code ${response.statusCode}');
-        _logger.log('response data ${response.data}');
       }
     } on DioError catch (e) {
       if (kDebugMode) {
         _logger.log('HTTP SERVICE ERROR MESSAGE: ${e.message}');
-        _logger.log('HTTP SERVICE ERROR DATA: ${e.response?.data}');
       }
       if (e.type == DioErrorType.connectTimeout || e.type == DioErrorType.receiveTimeout || e.type == DioErrorType.sendTimeout) {
         return FormattedResponse(
@@ -154,9 +151,7 @@ abstract class ApiManager {
       if (err is DioError) {
         throw const CustomException('Something went wrong');
       }
-      debugPrint(err.toString());
     }
-    debugPrint(response.toString());
     return FormattedResponse(
       data: response?.data,
       success: "${response?.statusCode}".startsWith('2'),

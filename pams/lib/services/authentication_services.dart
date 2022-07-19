@@ -11,8 +11,7 @@ class AuthServiceImplementation extends ApiManager {
   AuthServiceImplementation(this.reader) : super(reader);
 
   //sign in user
-  Future<LoginResponseModel> userLogin(
-      {required String? email,required String? password}) async {
+  Future<LoginResponseModel> userLogin({required String? email, required String? password}) async {
     var body = {
       'email': email,
       'password': password,
@@ -22,7 +21,6 @@ class AuthServiceImplementation extends ApiManager {
       loginURl,
       body,
     );
-    print(response.data);
 
     if (response.responseCodeError == null) {
       return LoginResponseModel.fromJson(response.data);

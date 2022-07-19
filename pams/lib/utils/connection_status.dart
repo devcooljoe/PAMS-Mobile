@@ -20,11 +20,10 @@ class ConnectionStatus {
     }
   }
 
-  static void dataIsConnected() async {
-    PamsStateController controller = Get.put(PamsStateController());
+  static Future<void> dataIsConnected() async {
+    PamsStateController controller = Get.put<PamsStateController>(PamsStateController());
     try {
       final result = await InternetAddress.lookup('example.com');
-      print("Main Result: $result");
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         controller.connectionStatus.value = true;
       } else {
@@ -33,7 +32,6 @@ class ConnectionStatus {
     } on SocketException catch (_) {
       controller.connectionStatus.value = false;
     } catch (e) {
-      print('Error: $e');
       controller.connectionStatus.value = false;
     }
   }
