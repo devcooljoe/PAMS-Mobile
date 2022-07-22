@@ -304,4 +304,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+
+  // Future addLocation() async {
+  //   var _clientViewmodel = ref.watch(clientViewModel);
+  //   var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+  //   Future<Database> db = PamsDatabase.init();
+  //   var _list = PamsDatabase.fetch(db, 'addClientLocation');
+  //   _list.then((value) {
+  //     AddLocationRequestModel model = AddLocationRequestModel(
+  //       clientId: clientData.id,
+  //       name: value[0]['name'],
+  //       description: description.text,
+  //     );
+  //     _clientViewmodel.addClientLocation(model: model);
+  //   });
+  // }
 }

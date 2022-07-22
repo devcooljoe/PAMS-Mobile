@@ -25,14 +25,26 @@ class ConnectionStatus {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        controller.connectionStatus.value = true;
+        if (!controller.connectionStatus.value) {
+          Fluttertoast.showToast(msg: "Internet connection detected.");
+          controller.connectionStatus.value = true;
+        }
       } else {
-        controller.connectionStatus.value = false;
+        if (controller.connectionStatus.value) {
+          Fluttertoast.showToast(msg: "You're currently offline.");
+          controller.connectionStatus.value = false;
+        }
       }
     } on SocketException catch (_) {
-      controller.connectionStatus.value = false;
+      if (controller.connectionStatus.value) {
+        Fluttertoast.showToast(msg: "You're currently offline.");
+        controller.connectionStatus.value = false;
+      }
     } catch (e) {
-      controller.connectionStatus.value = false;
+      if (controller.connectionStatus.value) {
+        Fluttertoast.showToast(msg: "You're currently offline.");
+        controller.connectionStatus.value = false;
+      }
     }
   }
 }

@@ -15,6 +15,7 @@ import 'package:pams/models/single_test_response_model.dart';
 import 'package:pams/models/update_location_model.dart';
 import 'package:pams/utils/connection_status.dart';
 import 'package:pams/utils/controller.dart';
+import 'package:pams/utils/db.dart';
 import 'package:pams/views/authentication/auth.dart';
 
 class ClientServiceImplementation extends ApiManager {
@@ -25,6 +26,7 @@ class ClientServiceImplementation extends ApiManager {
   GetStorage customerResponseModel = GetStorage();
   // Read the current state of the controller.
   PamsStateController _controller = Get.put<PamsStateController>(PamsStateController());
+  var db = PamsDatabase.init();
 
   final getAllClientURL = '/Client/GetAllClientField';
   final getClientLocaionUrl = '/FieldScientistAnalysisNesrea/get-all-Sample-locations-for-a-Client';
@@ -44,22 +46,20 @@ class ClientServiceImplementation extends ApiManager {
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
     var token = box.read('token');
-    // Update the internet connection status.
     await ConnectionStatus.dataIsConnected();
-    // Check if there's no internet connection.
     if (!_controller.connectionStatus.value) {
-      Fluttertoast.showToast(msg: "You're currently offline.");
-      // Make reference to the local values.
       Map<String, dynamic> customerResponseData = {};
       var _data = customerResponseModel.getKeys();
       _data.forEach((key) {
         final newEntries = <String, dynamic>{key: customerResponseModel.read(key)};
         customerResponseData.addEntries(newEntries.entries);
       });
-      return CustomerResponseModel.fromJson(customerResponseData);
+      if (customerResponseData.length > 0) {
+        return CustomerResponseModel.fromJson(customerResponseData);
+      } else {
+        return CustomerResponseModel(status: false);
+      }
     } else {
-      Fluttertoast.showToast(msg: "Internet connection detected.");
-      // Fetch data directly from the server.
       final response = await getHttp(getAllClientURL, token: token);
       if (response.responseCodeError == null) {
         Map<String, dynamic> fetchedData = response.data;
@@ -117,10 +117,17 @@ class ClientServiceImplementation extends ApiManager {
 // add sample point or client location
   Future<AddLocationResponseModel?> addClientLocation(AddLocationRequestModel model) async {
     var token = box.read('token');
-    final response = await postHttp(addClientLocationURL, model.toJson(), token: token);
-    if (response.responseCodeError == null) {
-      return AddLocationResponseModel.fromJson(response.data);
+    await ConnectionStatus.dataIsConnected();
+    if (_controller.connectionStatus.value) {
+      final response = await postHttp(addClientLocationURL, model.toJson(), token: token);
+      if (response.responseCodeError == null) {
+        return AddLocationResponseModel.fromJson(response.data);
+      } else {
+        return AddLocationResponseModel(status: false);
+      }
     } else {
+      await PamsDatabase.insert(db, addClientLocationURL, model.toJson(), token: token, category: 'addClientLocation');
+      Fluttertoast.showToast(msg: 'Data has been stored in offline mode.');
       return AddLocationResponseModel(status: false);
     }
   }
