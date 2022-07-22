@@ -250,8 +250,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                   ),
                                 );
                               } else if (snapshot.hasData) {
-                                List<dynamic> d = json.decode(jsonEncode(snapshot.data));
-                                print(d);
+                                List<dynamic> _data = json.decode(jsonEncode(snapshot.data));
                                 return ListView(
                                   physics: BouncingScrollPhysics(),
                                   children: [
@@ -259,13 +258,15 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                       height: 20,
                                     ),
                                     ListView.builder(
-                                        itemCount: 1,
+                                        itemCount: _data.length,
                                         physics: NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
                                         itemBuilder: (context, index) {
                                           // var data = clientData
                                           //     .samplePointLocations;
-
+                                          String _body = _data[index]['body'];
+                                          var data = _body.replaceAll(RegExp(r"\{|\}"), '').split(',');
+                                          data.removeWhere((element) => element == '');
                                           return InkWell(
                                             onTap: () {
                                               // Get.to(
@@ -283,8 +284,8 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                               //     arguments: clientData);
                                             },
                                             child: ListWidget(
-                                              title: 'name',
-                                              subTitle: 'description',
+                                              title: data[1].split(':')[1],
+                                              subTitle: data[2].split(':')[1],
                                               trailing: Padding(
                                                 padding: const EdgeInsets.only(right: 10),
                                                 child: InkWell(

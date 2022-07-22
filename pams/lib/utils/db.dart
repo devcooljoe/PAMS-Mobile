@@ -15,7 +15,7 @@ class PamsDatabase {
     );
   }
 
-  static Future fetch(Future<Database> db, String? category) async {
+  static Future<List<Map<String, dynamic>>> fetch(Future<Database> db, String? category) async {
     var _db = await db;
     var _result;
     if (category == null)
