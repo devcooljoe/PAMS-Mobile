@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:get/get.dart';
@@ -19,7 +18,6 @@ import 'package:pams/utils/db.dart';
 import 'package:pams/views/authentication/auth.dart';
 
 class ClientServiceImplementation extends ApiManager {
-  final Reader reader;
   GetStorage box = GetStorage();
   GetStorage userdata = GetStorage();
   // Creates a customer response model box offline.
@@ -33,7 +31,6 @@ class ClientServiceImplementation extends ApiManager {
   final addClientLocationURL = '/FieldScientistAnalysisNesrea/add-client-location';
   final deleteClientLocationUrl = '/FieldScientistAnalysisNesrea/delete-a-client-sample-location/';
   final addDPRTestForEach = '/FieldScientistAnalysisDPR/add-dpr-TestResult-ForEachTest';
-  ClientServiceImplementation(this.reader) : super(reader);
   final addFMENVTestForEach = '/FieldScientistAnalysisFMEnv/add-fmenv-test-Testresult-ForEachTest';
   final addNesreaTestForEach = '/FieldScientistAnalysisNesrea/add-nesrea-test-Testresult-ForEachTest';
   final submitDPRTemplate = '/FieldScientistAnalysisDPR/submit-dpr-TestResult';
@@ -114,7 +111,7 @@ class ClientServiceImplementation extends ApiManager {
     }
   }
 
-// add sample point or client location
+  // add sample point or client location
   Future<AddLocationResponseModel?> addClientLocation(AddLocationRequestModel model) async {
     var token = box.read('token');
     await ConnectionStatus.update();

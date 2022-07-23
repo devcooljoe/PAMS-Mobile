@@ -11,6 +11,7 @@ import 'package:pams/styles/custom_colors.dart';
 import 'package:pams/utils/connection_status.dart';
 import 'package:pams/utils/controller.dart';
 import 'package:pams/utils/images.dart';
+import 'package:pams/utils/sync.dart';
 import 'package:pams/views/clients/customerList.dart';
 import 'package:pams/views/profile/profile.dart';
 import 'package:pams/views/report/view_test_reports.dart';
@@ -28,6 +29,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+    if (_controller.connectionStatus.value) {
+      SynchronizeData.init();
+    }
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/utils/network.dart' as _networkutils;
 import 'package:pams/http/custom_exception.dart';
 import 'dart:developer' as _logger;
@@ -11,9 +10,8 @@ abstract class ApiManager {
   late Dio dio;
 
   final baseURL = 'http://sethlab-001-site1.itempurl.com/api/v1';
-  final Reader read;
 
-  ApiManager(this.read) {
+  ApiManager() {
     final options = BaseOptions(
       baseUrl: baseURL,
       receiveDataWhenStatusError: true,

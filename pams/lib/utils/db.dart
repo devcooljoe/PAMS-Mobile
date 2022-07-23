@@ -52,6 +52,30 @@ class PamsDatabase {
       _result = await _db.rawQuery("SELECT * FROM PostHttp WHERE category = '$category'");
     return _result;
   }
+
+  static Future<void> delete(Future<Database> db, int id) async {
+    db.then((database) async {
+      var val = await database.rawQuery("SELECT * FROM PostHttp WHERE id = '$id'");
+      var category = val[0]['category'];
+      switch (category) {
+        case 'ClientLocation':
+          await ClientLocationData.delete(id.toString());
+          break;
+        case 'DPRTestTemplate':
+          await DPRTestTemplateData.delete(id.toString());
+          break;
+        case 'FMENVTestTemplate':
+          await FMENVTestTemplateData.delete(id.toString());
+          break;
+        case 'NESREATestTemplate':
+          await NESREATestTemplateData.delete(id.toString());
+          break;
+        default:
+          await ClientLocationData.delete(id.toString());
+      }
+      await database.rawDelete("DELETE FROM PostHttp WHERE id = '$id'");
+    });
+  }
 }
 
 class ClientLocationData extends PamsDatabase {
@@ -67,6 +91,12 @@ class ClientLocationData extends PamsDatabase {
     var _result;
     _result = await _db.rawQuery("SELECT * FROM ClientLocationData WHERE dataId = '$dataId'");
     return _result;
+  }
+
+  static Future<void> delete(String dataId) async {
+    db.then(
+      (database) async => await database.rawDelete("DELETE FROM ClientLocationData WHERE dataId = '$dataId'"),
+    );
   }
 }
 
@@ -84,6 +114,12 @@ class DPRTestTemplateData extends PamsDatabase {
     _result = await _db.rawQuery("SELECT * FROM DPRTestTemplateData WHERE dataId = '$dataId'");
     return _result;
   }
+
+  static Future<void> delete(String dataId) async {
+    db.then(
+      (database) async => await database.rawDelete("DELETE FROM DPRTestTemplateData WHERE dataId = '$dataId'"),
+    );
+  }
 }
 
 class FMENVTestTemplateData extends PamsDatabase {
@@ -100,6 +136,12 @@ class FMENVTestTemplateData extends PamsDatabase {
     _result = await _db.rawQuery("SELECT * FROM FMENVTestTemplateData WHERE dataId = '$dataId'");
     return _result;
   }
+
+  static Future<void> delete(String dataId) async {
+    db.then(
+      (database) async => await database.rawDelete("DELETE FROM FMENVTestTemplateData WHERE dataId = '$dataId'"),
+    );
+  }
 }
 
 class NESREATestTemplateData extends PamsDatabase {
@@ -115,5 +157,11 @@ class NESREATestTemplateData extends PamsDatabase {
     var _result;
     _result = await _db.rawQuery("SELECT * FROM NESREATestTemplateData WHERE dataId = '$dataId'");
     return _result;
+  }
+
+  static Future<void> delete(String dataId) async {
+    db.then(
+      (database) async => await database.rawDelete("DELETE FROM NESREATestTemplateData WHERE dataId = '$dataId'"),
+    );
   }
 }
