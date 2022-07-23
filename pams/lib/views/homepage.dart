@@ -65,7 +65,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   Widget build(BuildContext context) {
     Timer.periodic(Duration(seconds: 5), (t) {
-      ConnectionStatus.dataIsConnected();
+      ConnectionStatus.update();
     });
     var _authViewModel = ref.watch(authViewModel);
     var _clientViewModel = ref.watch(clientViewModel);

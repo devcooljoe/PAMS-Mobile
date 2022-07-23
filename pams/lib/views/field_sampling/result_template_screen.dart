@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/controller.dart';
 import 'package:pams/utils/notify_user.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
@@ -30,6 +32,7 @@ class ResultTemplatePage extends ConsumerStatefulWidget {
 }
 
 class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
+  var _controller = Get.put(PamsStateController());
   bool selectedSa = false;
   bool unSelectedSa = true;
   int selected = -0;
@@ -124,7 +127,32 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
         ],
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Result Templates", style: TextStyle(color: Colors.black, fontSize: 20)),
+        title: _controller.offlinePoint.value
+            ? Flex(
+                direction: Axis.horizontal,
+                children: [
+                  Text(
+                    "Result Templates",
+                    style: TextStyle(color: Colors.black, fontSize: 20),
+                  ),
+                  SizedBox(width: 5),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5.r),
+                      color: Colors.black,
+                    ),
+                    child: Text(
+                      'OFFLINE POINT',
+                      style: TextStyle(fontSize: 10, color: Colors.white),
+                    ),
+                  ),
+                ],
+              )
+            : Text(
+                "Result Templates",
+                style: TextStyle(color: Colors.black, fontSize: 20),
+              ),
       ),
       backgroundColor: CustomColors.background,
       body: ListView(

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/models/customer_response_model.dart';
 import 'package:pams/providers/provider_services.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/controller.dart';
 import 'package:pams/utils/db.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:pams/views/clients/location/edit_location.dart';
@@ -22,6 +23,7 @@ class ClientLocation extends ConsumerStatefulWidget {
 }
 
 class _ClientLocationState extends ConsumerState<ClientLocation> {
+  var _controller = Get.put(PamsStateController());
   var db = PamsDatabase.init();
   @override
   Widget build(BuildContext context) {
@@ -45,10 +47,13 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
             padding: const EdgeInsets.only(right: 20),
             child: InkWell(
               onTap: () async {
-                Navigator.of(context).push(MaterialPageRoute(
+                Navigator.of(context).push(
+                  MaterialPageRoute(
                     builder: (context) => AddLocation(
-                          clientID: clientData.id,
-                        )));
+                      clientID: clientData.id,
+                    ),
+                  ),
+                );
               },
               child: Icon(
                 Icons.add,
@@ -59,7 +64,10 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
         ],
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Sample Points", style: TextStyle(color: Colors.black, fontSize: 20)),
+        title: Text(
+          "Sample Points",
+          style: TextStyle(color: Colors.black, fontSize: 20),
+        ),
       ),
       backgroundColor: CustomColors.background,
       body: Stack(
@@ -95,7 +103,9 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                           indicatorSize: TabBarIndicatorSize.label,
                           labelColor: Colors.black,
                           indicator: BoxDecoration(
-                            border: Border(bottom: BorderSide(width: 1, color: CustomColors.mainDarkGreen)),
+                            border: Border(
+                              bottom: BorderSide(width: 1, color: CustomColors.mainDarkGreen),
+                            ),
                           ),
                           tabs: [
                             Tab(
@@ -130,18 +140,22 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                         height: 20,
                                       ),
                                       InkWell(
-                                          onTap: () async {
-                                            // _clientViewmodel.getClientLocation(
-                                            //     clientId: clientData.id!);
-                                            Navigator.of(context).push(MaterialPageRoute(
-                                                builder: (context) => AddLocation(
-                                                      clientID: clientData.id,
-                                                    )));
-                                          },
-                                          child: Text(
-                                            'Create one',
-                                            style: TextStyle(color: CustomColors.mainDarkGreen, fontWeight: FontWeight.bold, fontSize: 17.sp),
-                                          ))
+                                        onTap: () async {
+                                          // _clientViewmodel.getClientLocation(
+                                          //     clientId: clientData.id!);
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => AddLocation(
+                                                clientID: clientData.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          'Create one',
+                                          style: TextStyle(color: CustomColors.mainDarkGreen, fontWeight: FontWeight.bold, fontSize: 17.sp),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 )
@@ -157,7 +171,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                     //   child: TextFormField(
                                     //     inputFormatters: [
                                     //       FilteringTextInputFormatter.deny(
-                                    //           RegExp('[ ]')),
+                                    //           RegExp('[ ]'),),
                                     //     ],
                                     //     decoration: InputDecoration(
                                     //         hintText: 'Sample Points',
@@ -168,7 +182,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                     //         border: OutlineInputBorder(
                                     //             borderRadius:
                                     //                 BorderRadius.circular(
-                                    //                     10))),
+                                    //                     10),),),
                                     //   ),
                                     // ),
                                     ListView.builder(
@@ -176,8 +190,8 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                         physics: NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
                                         itemBuilder: (context, index) {
+                                          _controller.offlinePoint.value = false;
                                           var data = clientData.samplePointLocations;
-
                                           return InkWell(
                                             onTap: () {
                                               Get.to(
@@ -196,14 +210,16 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) => EditLocationPage(
-                                                                  clientID: clientData.id,
-                                                                  name: data[index].name,
-                                                                  description: data[index].description,
-                                                                  locatoionId: data[index].sampleLocationId,
-                                                                )));
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) => EditLocationPage(
+                                                          clientID: clientData.id,
+                                                          name: data[index].name,
+                                                          description: data[index].description,
+                                                          locatoionId: data[index].sampleLocationId,
+                                                        ),
+                                                      ),
+                                                    );
                                                   },
                                                   child: Icon(
                                                     Icons.edit,
@@ -222,7 +238,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                         Padding(
                           padding: const EdgeInsets.only(left: 10, right: 10),
                           child: FutureBuilder(
-                            future: PamsDatabase.fetch(db, null),
+                            future: PamsDatabase.fetch(db, 'ClientLocation'),
                             builder: ((context, snapshot) {
                               if (snapshot.data == null) {
                                 return Center(
@@ -234,22 +250,27 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                         height: 20,
                                       ),
                                       InkWell(
-                                          onTap: () async {
-                                            // _clientViewmodel.getClientLocation(
-                                            //     clientId: clientData.id!);
-                                            Navigator.of(context).push(MaterialPageRoute(
-                                                builder: (context) => AddOfflineLocationScreen(
-                                                      clientID: clientData.id,
-                                                    )));
-                                          },
-                                          child: Text(
-                                            'Create one',
-                                            style: TextStyle(color: CustomColors.mainDarkGreen, fontWeight: FontWeight.bold, fontSize: 17.sp),
-                                          ))
+                                        onTap: () async {
+                                          // _clientViewmodel.getClientLocation(
+                                          //     clientId: clientData.id!);
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => AddOfflineLocationScreen(
+                                                clientID: clientData.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          'Create one',
+                                          style: TextStyle(color: CustomColors.mainDarkGreen, fontWeight: FontWeight.bold, fontSize: 17.sp),
+                                        ),
+                                      )
                                     ],
                                   ),
                                 );
                               } else if (snapshot.hasData) {
+                                _controller.offlinePoint.value = true;
                                 List<dynamic> _data = json.decode(jsonEncode(snapshot.data));
                                 return ListView(
                                   physics: BouncingScrollPhysics(),
@@ -269,19 +290,13 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                           data.removeWhere((element) => element == '');
                                           return InkWell(
                                             onTap: () {
-                                              // Get.to(
-                                              //     () =>
-                                              //         ResultTemplatePage(
-                                              //           samplePointName:
-                                              //               data![index]
-                                              //                   .name,
-                                              //           samplePointIndex:
-                                              //               index,
-                                              //           samplePointId: data[
-                                              //                   index]
-                                              //               .sampleLocationId,
-                                              //         ),
-                                              //     arguments: clientData);
+                                              Get.to(
+                                                  () => ResultTemplatePage(
+                                                        samplePointName: data[1].split(':')[1],
+                                                        samplePointIndex: index,
+                                                        samplePointId: _data[index]['id'],
+                                                      ),
+                                                  arguments: clientData);
                                             },
                                             child: ListWidget(
                                               title: data[1].split(':')[1],
@@ -304,7 +319,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                                     //                       data[index].description,
                                                     //                   locatoionId:
                                                     //                       data[index].sampleLocationId,
-                                                    //                 )));
+                                                    //                 ),),);
                                                   },
                                                   child: Icon(
                                                     Icons.edit,
@@ -319,11 +334,12 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                 );
                               } else {
                                 return Center(
-                                    child: SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(),
-                                ));
+                                  child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
                               }
                             }),
                           ),

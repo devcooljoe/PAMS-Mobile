@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
@@ -38,8 +36,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Result Activities",
-            style: TextStyle(color: Colors.black, fontSize: 20)),
+        title: Text("Result Activities", style: TextStyle(color: Colors.black, fontSize: 20)),
       ),
       backgroundColor: CustomColors.background,
       body: Padding(
@@ -51,9 +48,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 20, top: 20, left: 20),
                 child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.grey.withOpacity(0.4)),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: Colors.grey.withOpacity(0.4)),
                   child: InkWell(
                     onTap: () {
                       _selectTemplateType();
@@ -62,10 +57,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                       padding: const EdgeInsets.all(6.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(_sampleProvider.categoryCode),
-                          Icon(Icons.arrow_drop_down)
-                        ],
+                        children: [Text(_sampleProvider.categoryCode), Icon(Icons.arrow_drop_down)],
                       ),
                     ),
                   ),
@@ -90,10 +82,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                             indicatorSize: TabBarIndicatorSize.label,
                             labelColor: Colors.black,
                             indicator: BoxDecoration(
-                              border: Border(
-                                  bottom: BorderSide(
-                                      width: 1,
-                                      color: CustomColors.mainDarkGreen)),
+                              border: Border(bottom: BorderSide(width: 1, color: CustomColors.mainDarkGreen)),
                             ),
                             tabs: [
                               Tab(
@@ -124,15 +113,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                 SizedBox(
                                   height: 20,
                                 ),
-                                _clientViewModel.dprResultActivityData.data ==
-                                            null ||
-                                        _clientViewModel
-                                                .fmenvResultActivityData.data ==
-                                            null ||
-                                        _clientViewModel
-                                                .nesreaResultActivityData
-                                                .data ==
-                                            null
+                                _clientViewModel.dprResultActivityData.data == null || _clientViewModel.fmenvResultActivityData.data == null || _clientViewModel.nesreaResultActivityData.data == null
                                     ? Center(
                                         child: SizedBox(
                                           width: 20,
@@ -141,129 +122,54 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                         ),
                                       )
                                     : ListView.builder(
-                                        itemCount: _sampleProvider
-                                                    .templateIndex ==
-                                                0
-                                            ? _clientViewModel
-                                                .dprResultActivityData
-                                                .data!
-                                                .returnObject!
-                                                .length
+                                        itemCount: _sampleProvider.templateIndex == 0
+                                            ? _clientViewModel.dprResultActivityData.data!.returnObject!.length
                                             : _sampleProvider.templateIndex == 1
-                                                ? _clientViewModel
-                                                    .fmenvResultActivityData
-                                                    .data!
-                                                    .returnObject!
-                                                    .length
-                                                : _clientViewModel
-                                                    .nesreaResultActivityData
-                                                    .data!
-                                                    .returnObject!
-                                                    .length,
+                                                ? _clientViewModel.fmenvResultActivityData.data!.returnObject!.length
+                                                : _clientViewModel.nesreaResultActivityData.data!.returnObject!.length,
                                         physics: NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
                                         itemBuilder: (context, index) {
-                                          var dprdata = _clientViewModel
-                                              .dprResultActivityData
-                                              .data!
-                                              .returnObject!;
-                                          var fmenvdata = _clientViewModel
-                                              .fmenvResultActivityData
-                                              .data!
-                                              .returnObject!;
-                                          var nesreadata = _clientViewModel
-                                              .nesreaResultActivityData
-                                              .data!
-                                              .returnObject!;
-                                          return dprdata.isEmpty == true ||
-                                                  fmenvdata.isEmpty == true ||
-                                                  nesreadata.isEmpty == true
+                                          var dprdata = _clientViewModel.dprResultActivityData.data!.returnObject!;
+                                          var fmenvdata = _clientViewModel.fmenvResultActivityData.data!.returnObject!;
+                                          var nesreadata = _clientViewModel.nesreaResultActivityData.data!.returnObject!;
+                                          return dprdata.isEmpty == true || fmenvdata.isEmpty == true || nesreadata.isEmpty == true
                                               ? Center(
                                                   child: Text('No result yet'),
                                                 )
                                               : Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 20),
+                                                  padding: const EdgeInsets.only(top: 20),
                                                   child: CustomDropDown(
                                                       downloadFile: () {},
                                                       title: Row(
                                                         children: [
                                                           Text(
-                                                            _sampleProvider
-                                                                        .templateIndex ==
-                                                                    0
-                                                                ? dprdata[index]
-                                                                    .clientName!
-                                                                : _sampleProvider
-                                                                            .templateIndex ==
-                                                                        1
-                                                                    ? fmenvdata[
-                                                                            index]
-                                                                        .clientName!
-                                                                    : nesreadata[
-                                                                            index]
-                                                                        .clientName!,
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                color: CustomColors
-                                                                    .mainblueColor
-                                                                    .withOpacity(
-                                                                        0.8)),
+                                                            _sampleProvider.templateIndex == 0
+                                                                ? dprdata[index].clientName!
+                                                                : _sampleProvider.templateIndex == 1
+                                                                    ? fmenvdata[index].clientName!
+                                                                    : nesreadata[index].clientName!,
+                                                            style: TextStyle(fontWeight: FontWeight.bold, color: CustomColors.mainblueColor.withOpacity(0.8)),
                                                           ),
                                                           SizedBox(
                                                             width: 10.w,
                                                           ),
                                                           Text(
-                                                            _sampleProvider
-                                                                        .templateIndex ==
-                                                                    0
-                                                                ? dprdata[index]
-                                                                    .samplePointName!
-                                                                : _sampleProvider
-                                                                            .templateIndex ==
-                                                                        1
-                                                                    ? fmenvdata[
-                                                                            index]
-                                                                        .samplePointName!
-                                                                    : nesreadata[
-                                                                            index]
-                                                                        .samplePointName!,
+                                                            _sampleProvider.templateIndex == 0
+                                                                ? dprdata[index].samplePointName!
+                                                                : _sampleProvider.templateIndex == 1
+                                                                    ? fmenvdata[index].samplePointName!
+                                                                    : nesreadata[index].samplePointName!,
                                                           ),
                                                         ],
                                                       ),
                                                       body: Column(
                                                         children: List.generate(
-                                                            _sampleProvider
-                                                                        .templateIndex ==
-                                                                    0
-                                                                ? _clientViewModel
-                                                                    .dprResultActivityData
-                                                                    .data!
-                                                                    .returnObject![
-                                                                        index]
-                                                                    .dprSamples!
-                                                                    .length
-                                                                : _sampleProvider
-                                                                            .templateIndex ==
-                                                                        1
-                                                                    ? _clientViewModel
-                                                                        .fmenvResultActivityData
-                                                                        .data!
-                                                                        .returnObject![
-                                                                            index]
-                                                                        .fmenvSamples!
-                                                                        .length
-                                                                    : _clientViewModel
-                                                                        .nesreaResultActivityData
-                                                                        .data!
-                                                                        .returnObject![
-                                                                            index]
-                                                                        .nesreaSamples!
-                                                                        .length,
-                                                            (myindex) {
+                                                            _sampleProvider.templateIndex == 0
+                                                                ? _clientViewModel.dprResultActivityData.data!.returnObject![index].dprSamples!.length
+                                                                : _sampleProvider.templateIndex == 1
+                                                                    ? _clientViewModel.fmenvResultActivityData.data!.returnObject![index].fmenvSamples!.length
+                                                                    : _clientViewModel.nesreaResultActivityData.data!.returnObject![index].nesreaSamples!.length, (myindex) {
                                                           return Column(
                                                             children: [
                                                               ListTile(
@@ -292,37 +198,19 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                                                       testName: 'Result Details'));
                                                                 },
                                                                 title: Text(
-                                                                  _sampleProvider
-                                                                              .templateIndex ==
-                                                                          0
-                                                                      ? dprdata[
-                                                                              index]
-                                                                          .dprSamples![
-                                                                              myindex]
-                                                                          .testName!
-                                                                          .toString()
-                                                                      : _sampleProvider.templateIndex ==
-                                                                              1
-                                                                          ? fmenvdata[index]
-                                                                              .fmenvSamples![
-                                                                                  myindex]
-                                                                              .testName!
-                                                                              .toString()
-                                                                          : nesreadata[index]
-                                                                              .nesreaSamples![myindex]
-                                                                              .testName!
-                                                                              .toString(),
+                                                                  _sampleProvider.templateIndex == 0
+                                                                      ? dprdata[index].dprSamples![myindex].testName!.toString()
+                                                                      : _sampleProvider.templateIndex == 1
+                                                                          ? fmenvdata[index].fmenvSamples![myindex].testName!.toString()
+                                                                          : nesreadata[index].nesreaSamples![myindex].testName!.toString(),
                                                                 ),
                                                                 trailing: Text(
                                                                   'Delivered',
-                                                                  style: TextStyle(
-                                                                      fontSize:
-                                                                          12),
+                                                                  style: TextStyle(fontSize: 12),
                                                                 ),
                                                                 subtitle: Row(
                                                                   children: [
-                                                                    Text(DateFormat(
-                                                                            'd MMMM y')
+                                                                    Text(DateFormat('d MMMM y')
                                                                         .format(
                                                                           _sampleProvider.templateIndex == 0
                                                                               ? dprdata[index].time!
@@ -334,8 +222,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                                                     SizedBox(
                                                                       width: 10,
                                                                     ),
-                                                                    Text(DateFormat(
-                                                                            'HH:mm:ss a')
+                                                                    Text(DateFormat('HH:mm:ss a')
                                                                         .format(
                                                                           _sampleProvider.templateIndex == 0
                                                                               ? dprdata[index].time!
@@ -394,11 +281,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
           return SizedBox(
             height: 500.0,
             child: Container(
-                decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0))),
+                decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0))),
                 child: ListView(
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
@@ -409,8 +292,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                     Text(
                       'Sample Templates',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.sp, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
                       height: 20.h,
@@ -424,8 +306,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                             child: ListTile(
                               onTap: (() async {
                                 setState(() {
-                                  _sampleProvider.categoryCode =
-                                      sampleTemplates[index];
+                                  _sampleProvider.categoryCode = sampleTemplates[index];
                                   _sampleProvider.templateIndex = index;
                                 });
 
@@ -447,8 +328,7 @@ class _ReportPageState extends ConsumerState<ReportPage> {
                                         color: CustomColors.background,
                                         size: 13,
                                       ),
-                                      backgroundColor:
-                                          CustomColors.mainDarkGreen)
+                                      backgroundColor: CustomColors.mainDarkGreen)
                                   : SizedBox(
                                       height: 1,
                                       width: 1,

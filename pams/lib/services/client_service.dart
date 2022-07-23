@@ -46,7 +46,7 @@ class ClientServiceImplementation extends ApiManager {
   //load all clients
   Future<CustomerResponseModel?> getAllClientData() async {
     var token = box.read('token');
-    await ConnectionStatus.dataIsConnected();
+    await ConnectionStatus.update();
     if (!_controller.connectionStatus.value) {
       Map<String, dynamic> customerResponseData = {};
       var _data = customerResponseModel.getKeys();
@@ -117,7 +117,7 @@ class ClientServiceImplementation extends ApiManager {
 // add sample point or client location
   Future<AddLocationResponseModel?> addClientLocation(AddLocationRequestModel model) async {
     var token = box.read('token');
-    await ConnectionStatus.dataIsConnected();
+    await ConnectionStatus.update();
     if (_controller.connectionStatus.value) {
       final response = await postHttp(addClientLocationURL, model.toJson(), token: token);
       if (response.responseCodeError == null) {
@@ -126,8 +126,8 @@ class ClientServiceImplementation extends ApiManager {
         return AddLocationResponseModel(status: false);
       }
     } else {
-      await PamsDatabase.insert(db, addClientLocationURL, model.toJson(), token: token, category: 'addClientLocation');
-      Fluttertoast.showToast(msg: 'Data has been stored in offline mode.');
+      await PamsDatabase.insert(db, addClientLocationURL, model.toJson(), token: token, category: 'ClientLocation');
+      Fluttertoast.showToast(msg: 'Sample point has been stored locally in offline mode.');
       return AddLocationResponseModel(status: false);
     }
   }
@@ -154,10 +154,17 @@ class ClientServiceImplementation extends ApiManager {
   Future<RunSimpleTestResponseModel> submitDPRTestTemplate({required int samplePtId, required int DPRFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic DPRTemplates, required dynamic Picture}) async {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'DPRFieldId': DPRFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'DPRTemplates': DPRTemplates, 'Picture': Picture};
-    final response = await postHttp(submitDPRTemplate, postObj, token: token, formdata: true);
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value) {
+      final response = await postHttp(submitDPRTemplate, postObj, token: token, formdata: true);
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await PamsDatabase.insert(db, submitDPRTemplate, postObj, token: token, formdata: true, category: 'DPRTestTemplate');
+      Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
     }
   }
@@ -189,10 +196,17 @@ class ClientServiceImplementation extends ApiManager {
   Future<RunSimpleTestResponseModel> submitFMENVTestTemplate({required int samplePtId, required int FMEnvFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic FMENVTemplates, required dynamic Picture}) async {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'FMEnvFieldId': FMEnvFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'FMENVTemplates': FMENVTemplates, 'Picture': Picture};
-    final response = await postHttp(submitFMENVTemplate, postObj, token: token, formdata: true);
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value) {
+      final response = await postHttp(submitFMENVTemplate, postObj, token: token, formdata: true);
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await PamsDatabase.insert(db, submitFMENVTemplate, postObj, token: token, formdata: true, category: 'FMENVTestTemplate');
+      Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
     }
   }
@@ -224,10 +238,17 @@ class ClientServiceImplementation extends ApiManager {
   Future<RunSimpleTestResponseModel> submitNESREATestTemplate({required int samplePtId, required int NesreaFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic NesreaTemplates, required dynamic Picture}) async {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'NesreaFieldId': NesreaFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'NesreaTemplates': NesreaTemplates, 'Picture': Picture};
-    final response = await postHttp(submitNESREATemplate, postObj, token: token, formdata: true);
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value) {
+      final response = await postHttp(submitNESREATemplate, postObj, token: token, formdata: true);
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await PamsDatabase.insert(db, submitNESREATemplate, postObj, token: token, formdata: true, category: 'NESREATestTemplate');
+      Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
     }
   }
