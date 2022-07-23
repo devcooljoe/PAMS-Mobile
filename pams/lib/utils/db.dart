@@ -2,18 +2,22 @@ import 'package:sqflite/sqflite.dart';
 
 class PamsDatabase {
   static Future<Database> init() async {
-    var db = await openDatabase('pamsDatabase.db', version: 1, onCreate: (Database db, int version) async {
-      await db.execute("""CREATE TABLE 
+    var db = await openDatabase(
+      'pamsDatabase.db',
+      version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute("""CREATE TABLE 
         PostHttp (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, route VARCHAR NULL, params VARCHAR NULL, formdata DOUBLE NULL, formEncoded BOOLEAN NULL, token VARCHAR NULL, category VARCHAR NULL)""");
-      await db.execute("""CREATE TABLE 
+        await db.execute("""CREATE TABLE 
         ClientLocationData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, clientId VARCHAR NULL, name VARCHAR NULL, description VARCHAR NULL)""");
-      await db.execute("""CREATE TABLE 
+        await db.execute("""CREATE TABLE 
         DPRTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, DPRFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, DPRTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
-      await db.execute("""CREATE TABLE 
+        await db.execute("""CREATE TABLE 
         FMENVTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, FMENVFieldId VARCHAR NULL, Latitude VARCHAR NULL, FMENVTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
-      await db.execute("""CREATE TABLE 
+        await db.execute("""CREATE TABLE 
         NESREATestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, NESREAFieldId VARCHAR NULL, Latitude VARCHAR NULL, NESREATemplates VARCHAR NULL, Picture VARCHAR NULL)""");
-    });
+      },
+    );
     return db;
   }
 
@@ -23,19 +27,19 @@ class PamsDatabase {
     _id = await _db.rawInsert('INSERT INTO PostHttp(route, params, formdata, formEncoded, token, category) VALUES("$route", "$params", "$formdata", "$formEncoded", "$token", "$category")');
     switch (category) {
       case 'ClientLocation':
-        ClientLocationData.insert(_id, body);
+        await ClientLocationData.insert(_id, body);
         break;
       case 'DPRTestTemplate':
-        DPRTestTemplateData.insert(_id, body);
+        await DPRTestTemplateData.insert(_id, body);
         break;
       case 'FMENVTestTemplate':
-        FMENVTestTemplateData.insert(_id, body);
+        await FMENVTestTemplateData.insert(_id, body);
         break;
       case 'NESREATestTemplate':
-        NESREATestTemplateData.insert(_id, body);
+        await NESREATestTemplateData.insert(_id, body);
         break;
       default:
-        ClientLocationData.insert(_id, body);
+        await ClientLocationData.insert(_id, body);
     }
   }
 
@@ -58,7 +62,7 @@ class ClientLocationData extends PamsDatabase {
     );
   }
 
-  static Future fetch(String dataId) async {
+  static Future<List<Map<String, dynamic>>> fetch(String dataId) async {
     var _db = await db;
     var _result;
     _result = await _db.rawQuery("SELECT * FROM ClientLocationData WHERE dataId = '$dataId'");
@@ -74,7 +78,7 @@ class DPRTestTemplateData extends PamsDatabase {
     );
   }
 
-  static Future fetch(String dataId) async {
+  static Future<List<Map<String, dynamic>>> fetch(String dataId) async {
     var _db = await db;
     var _result;
     _result = await _db.rawQuery("SELECT * FROM DPRTestTemplateData WHERE dataId = '$dataId'");
@@ -90,7 +94,7 @@ class FMENVTestTemplateData extends PamsDatabase {
     );
   }
 
-  static Future fetch(String dataId) async {
+  static Future<List<Map<String, dynamic>>> fetch(String dataId) async {
     var _db = await db;
     var _result;
     _result = await _db.rawQuery("SELECT * FROM FMENVTestTemplateData WHERE dataId = '$dataId'");
@@ -106,7 +110,7 @@ class NESREATestTemplateData extends PamsDatabase {
     );
   }
 
-  static Future fetch(String dataId) async {
+  static Future<List<Map<String, dynamic>>> fetch(String dataId) async {
     var _db = await db;
     var _result;
     _result = await _db.rawQuery("SELECT * FROM NESREATestTemplateData WHERE dataId = '$dataId'");

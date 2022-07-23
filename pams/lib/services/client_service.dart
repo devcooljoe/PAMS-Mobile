@@ -47,7 +47,7 @@ class ClientServiceImplementation extends ApiManager {
   Future<CustomerResponseModel?> getAllClientData() async {
     var token = box.read('token');
     await ConnectionStatus.update();
-    if (!_controller.connectionStatus.value) {
+    if (!_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       Map<String, dynamic> customerResponseData = {};
       var _data = customerResponseModel.getKeys();
       _data.forEach((key) {
@@ -118,7 +118,7 @@ class ClientServiceImplementation extends ApiManager {
   Future<AddLocationResponseModel?> addClientLocation(AddLocationRequestModel model) async {
     var token = box.read('token');
     await ConnectionStatus.update();
-    if (_controller.connectionStatus.value) {
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       final response = await postHttp(addClientLocationURL, model.toJson(), token: token);
       if (response.responseCodeError == null) {
         return AddLocationResponseModel.fromJson(response.data);
@@ -155,7 +155,7 @@ class ClientServiceImplementation extends ApiManager {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'DPRFieldId': DPRFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'DPRTemplates': DPRTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
-    if (_controller.connectionStatus.value) {
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       final response = await postHttp(submitDPRTemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -197,7 +197,7 @@ class ClientServiceImplementation extends ApiManager {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'FMEnvFieldId': FMEnvFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'FMENVTemplates': FMENVTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
-    if (_controller.connectionStatus.value) {
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       final response = await postHttp(submitFMENVTemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -206,7 +206,7 @@ class ClientServiceImplementation extends ApiManager {
       }
     } else {
       await PamsDatabase.insert(db, submitFMENVTemplate, postObj, token: token, formdata: true, category: 'FMENVTestTemplate');
-      Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
+      Fluttertoast.showToast(msg: 'FMENV Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
     }
   }
@@ -239,7 +239,7 @@ class ClientServiceImplementation extends ApiManager {
     var token = box.read('token');
     var postObj = {'samplePtId': samplePtId, 'NesreaFieldId': NesreaFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'NesreaTemplates': NesreaTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
-    if (_controller.connectionStatus.value) {
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       final response = await postHttp(submitNESREATemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -248,7 +248,7 @@ class ClientServiceImplementation extends ApiManager {
       }
     } else {
       await PamsDatabase.insert(db, submitNESREATemplate, postObj, token: token, formdata: true, category: 'NESREATestTemplate');
-      Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
+      Fluttertoast.showToast(msg: 'NESREA Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
     }
   }

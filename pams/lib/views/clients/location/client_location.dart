@@ -272,6 +272,7 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                               } else if (snapshot.hasData) {
                                 _controller.offlinePoint.value = true;
                                 List<dynamic> _data = json.decode(jsonEncode(snapshot.data));
+
                                 return ListView(
                                   physics: BouncingScrollPhysics(),
                                   children: [
@@ -285,50 +286,62 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                         itemBuilder: (context, index) {
                                           // var data = clientData
                                           //     .samplePointLocations;
-                                          String _body = _data[index]['body'];
-                                          var data = _body.replaceAll(RegExp(r"\{|\}"), '').split(',');
-                                          data.removeWhere((element) => element == '');
-                                          return InkWell(
-                                            onTap: () {
-                                              Get.to(
-                                                  () => ResultTemplatePage(
-                                                        samplePointName: data[1].split(':')[1],
-                                                        samplePointIndex: index,
-                                                        samplePointId: _data[index]['id'],
+                                          return FutureBuilder(
+                                              future: ClientLocationData.fetch(_data[index]['id'].toString()),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  List<dynamic> _dataParams = json.decode(jsonEncode(snapshot.data));
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      Get.to(
+                                                          () => ResultTemplatePage(
+                                                                samplePointName: _dataParams[0]['name'],
+                                                                samplePointIndex: index,
+                                                                samplePointId: _data[index]['id'],
+                                                              ),
+                                                          arguments: clientData);
+                                                    },
+                                                    child: ListWidget(
+                                                      title: _dataParams[0]['name'],
+                                                      subTitle: _dataParams[0]['description'],
+                                                      trailing: Padding(
+                                                        padding: const EdgeInsets.only(right: 10),
+                                                        child: InkWell(
+                                                          onTap: () {
+                                                            // Navigator.push(
+                                                            //     context,
+                                                            //     MaterialPageRoute(
+                                                            //         builder:
+                                                            //             (context) =>
+                                                            //                 EditLocationPage(
+                                                            //                   clientID:
+                                                            //                       clientData.id,
+                                                            //                   name:
+                                                            //                       data[index].name,
+                                                            //                   description:
+                                                            //                       data[index].description,
+                                                            //                   locatoionId:
+                                                            //                       data[index].sampleLocationId,
+                                                            //                 ),),);
+                                                          },
+                                                          child: Icon(
+                                                            Icons.edit,
+                                                            color: CustomColors.mainDarkGreen,
+                                                          ),
+                                                        ),
                                                       ),
-                                                  arguments: clientData);
-                                            },
-                                            child: ListWidget(
-                                              title: data[1].split(':')[1],
-                                              subTitle: data[2].split(':')[1],
-                                              trailing: Padding(
-                                                padding: const EdgeInsets.only(right: 10),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    // Navigator.push(
-                                                    //     context,
-                                                    //     MaterialPageRoute(
-                                                    //         builder:
-                                                    //             (context) =>
-                                                    //                 EditLocationPage(
-                                                    //                   clientID:
-                                                    //                       clientData.id,
-                                                    //                   name:
-                                                    //                       data[index].name,
-                                                    //                   description:
-                                                    //                       data[index].description,
-                                                    //                   locatoionId:
-                                                    //                       data[index].sampleLocationId,
-                                                    //                 ),),);
-                                                  },
-                                                  child: Icon(
-                                                    Icons.edit,
-                                                    color: CustomColors.mainDarkGreen,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          );
+                                                    ),
+                                                  );
+                                                } else if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return SizedBox(
+                                                    width: 10,
+                                                    height: 10,
+                                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                                  );
+                                                } else {
+                                                  return Container();
+                                                }
+                                              });
                                         })
                                   ],
                                 );
