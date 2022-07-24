@@ -13,8 +13,6 @@ import 'package:pams/utils/notify_user.dart';
 import 'package:pams/utils/strings.dart';
 import 'package:pams/views/clients/location/add_location.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:dio/dio.dart' as multipart;
 
 class ResultTemplatePage extends ConsumerStatefulWidget {
   String? samplePointName;
@@ -606,7 +604,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
 
   //submit for dpr template
   subMiteForDPRTemplate() async {
-    String fileName = _image!.path.split('/').last;
     setState(() {
       saveBtn = true;
     });
@@ -620,7 +617,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       DPRTemplates: data.dprSamples,
-      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: _image!.path,
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {
@@ -667,7 +664,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
 
   //submit for fmenv template
   subMiteForFMENVTemplate() async {
-    String fileName = _image!.path.split('/').last;
     setState(() {
       saveBtn = true;
     });
@@ -681,7 +677,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       FMENVTemplates: data.fmenvSamples,
-      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: _image!.path,
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {
@@ -728,7 +724,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
 
   //submit for nesrea template
   subMiteForNESREATemplate() async {
-    String fileName = _image!.path.split('/').last;
     setState(() {
       saveBtn = true;
     });
@@ -742,7 +737,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
       Latitude: 233,
       Longitude: 332,
       NesreaTemplates: data.nesreaSamples,
-      Picture: await multipart.MultipartFile.fromFile(_image!.path, filename: fileName, contentType: MediaType('image', 'jpg')),
+      Picture: _image!.path,
     );
 
     await Future.delayed(const Duration(seconds: 5), () async {

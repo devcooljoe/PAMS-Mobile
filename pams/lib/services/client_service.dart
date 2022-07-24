@@ -16,6 +16,8 @@ import 'package:pams/utils/connection_status.dart';
 import 'package:pams/utils/controller.dart';
 import 'package:pams/utils/db.dart';
 import 'package:pams/views/authentication/auth.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:dio/dio.dart' as multipart;
 
 class ClientServiceImplementation extends ApiManager {
   GetStorage box = GetStorage();
@@ -148,11 +150,13 @@ class ClientServiceImplementation extends ApiManager {
   }
 
   //submit DPR Template
-  Future<RunSimpleTestResponseModel> submitDPRTestTemplate({required int samplePtId, required int DPRFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic DPRTemplates, required dynamic Picture}) async {
+  Future<RunSimpleTestResponseModel> submitDPRTestTemplate({required int samplePtId, required int DPRFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic DPRTemplates, required String Picture}) async {
     var token = box.read('token');
-    var postObj = {'samplePtId': samplePtId, 'DPRFieldId': DPRFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'DPRTemplates': DPRTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      String fileName = Picture.split('/').last;
+      var _picture = await multipart.MultipartFile.fromFile(Picture, filename: fileName, contentType: MediaType('image', 'jpg'));
+      var postObj = {'samplePtId': samplePtId, 'DPRFieldId': DPRFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'DPRTemplates': DPRTemplates, 'Picture': _picture};
       final response = await postHttp(submitDPRTemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -160,6 +164,7 @@ class ClientServiceImplementation extends ApiManager {
         return RunSimpleTestResponseModel(status: false);
       }
     } else {
+      var postObj = {'samplePtId': samplePtId, 'DPRFieldId': DPRFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'DPRTemplates': DPRTemplates, 'Picture': Picture};
       await PamsDatabase.insert(db, submitDPRTemplate, postObj, token: token, formdata: true, category: 'DPRTestTemplate');
       Fluttertoast.showToast(msg: 'DPR Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
@@ -190,11 +195,13 @@ class ClientServiceImplementation extends ApiManager {
   }
 
   //submit FMENV Template
-  Future<RunSimpleTestResponseModel> submitFMENVTestTemplate({required int samplePtId, required int FMEnvFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic FMENVTemplates, required dynamic Picture}) async {
+  Future<RunSimpleTestResponseModel> submitFMENVTestTemplate({required int samplePtId, required int FMEnvFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic FMENVTemplates, required String Picture}) async {
     var token = box.read('token');
-    var postObj = {'samplePtId': samplePtId, 'FMEnvFieldId': FMEnvFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'FMENVTemplates': FMENVTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      String fileName = Picture.split('/').last;
+      var _picture = await multipart.MultipartFile.fromFile(Picture, filename: fileName, contentType: MediaType('image', 'jpg'));
+      var postObj = {'samplePtId': samplePtId, 'FMEnvFieldId': FMEnvFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'FMENVTemplates': FMENVTemplates, 'Picture': _picture};
       final response = await postHttp(submitFMENVTemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -202,6 +209,7 @@ class ClientServiceImplementation extends ApiManager {
         return RunSimpleTestResponseModel(status: false);
       }
     } else {
+      var postObj = {'samplePtId': samplePtId, 'FMEnvFieldId': FMEnvFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'FMENVTemplates': FMENVTemplates, 'Picture': Picture};
       await PamsDatabase.insert(db, submitFMENVTemplate, postObj, token: token, formdata: true, category: 'FMENVTestTemplate');
       Fluttertoast.showToast(msg: 'FMENV Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);
@@ -232,11 +240,13 @@ class ClientServiceImplementation extends ApiManager {
   }
 
   //submit Nesrea Template
-  Future<RunSimpleTestResponseModel> submitNESREATestTemplate({required int samplePtId, required int NesreaFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic NesreaTemplates, required dynamic Picture}) async {
+  Future<RunSimpleTestResponseModel> submitNESREATestTemplate({required int samplePtId, required int NesreaFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic NesreaTemplates, required String Picture}) async {
     var token = box.read('token');
-    var postObj = {'samplePtId': samplePtId, 'NesreaFieldId': NesreaFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'NesreaTemplates': NesreaTemplates, 'Picture': Picture};
     await ConnectionStatus.update();
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      String fileName = Picture.split('/').last;
+      var _picture = await multipart.MultipartFile.fromFile(Picture, filename: fileName, contentType: MediaType('image', 'jpg'));
+      var postObj = {'samplePtId': samplePtId, 'NesreaFieldId': NesreaFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'NesreaTemplates': NesreaTemplates, 'Picture': _picture};
       final response = await postHttp(submitNESREATemplate, postObj, token: token, formdata: true);
       if (response.responseCodeError == null) {
         return RunSimpleTestResponseModel.fromJson(response.data);
@@ -244,6 +254,7 @@ class ClientServiceImplementation extends ApiManager {
         return RunSimpleTestResponseModel(status: false);
       }
     } else {
+      var postObj = {'samplePtId': samplePtId, 'NesreaFieldId': NesreaFieldId, 'Latitude': Latitude, 'Longitude': Longitude, 'NesreaTemplates': NesreaTemplates, 'Picture': Picture};
       await PamsDatabase.insert(db, submitNESREATemplate, postObj, token: token, formdata: true, category: 'NESREATestTemplate');
       Fluttertoast.showToast(msg: 'NESREA Template has been stored locally in offline mode.');
       return RunSimpleTestResponseModel(status: false);

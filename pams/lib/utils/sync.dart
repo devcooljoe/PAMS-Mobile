@@ -8,10 +8,11 @@ class SynchronizeData extends ApiManager {
   static var clientService = ClientServiceImplementation();
   static Future<void> init() async {
     Fluttertoast.showToast(msg: 'Syncing data...');
-    syncClientLocation();
-    syncDPRTestTemplate();
-    syncFMENVTestTemplate();
-    syncNESREATestTemplate();
+    await syncClientLocation();
+    await syncDPRTestTemplate();
+    await syncFMENVTestTemplate();
+    await syncNESREATestTemplate();
+    Fluttertoast.showToast(msg: 'Data sync successful.');
   }
 
   static Future syncClientLocation() async {

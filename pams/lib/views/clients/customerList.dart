@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pams/providers/category_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
-import 'package:pams/widgets/customfield.dart';
 import 'package:pams/widgets/list_widget.dart';
 
 import 'location/client_location.dart';
@@ -59,10 +58,10 @@ class CustomerList extends ConsumerWidget {
                 SizedBox(
                   height: 20,
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: CustomTextField(),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                //   child: CustomTextField(),
+                // ),
                 _clientViewModel.clientData.data!.returnObject!.isEmpty == true
                     ? Center(
                         child: Text('No Sample Site Yet'),
