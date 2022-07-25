@@ -292,44 +292,9 @@ class _ClientLocationState extends ConsumerState<ClientLocation> {
                                                 if (snapshot.hasData) {
                                                   List<dynamic> _dataParams = json.decode(jsonEncode(snapshot.data));
                                                   return InkWell(
-                                                    onTap: () {
-                                                      Get.to(
-                                                          () => ResultTemplatePage(
-                                                                samplePointName: _dataParams[0]['name'],
-                                                                samplePointIndex: index,
-                                                                samplePointId: _data[index]['id'],
-                                                              ),
-                                                          arguments: clientData);
-                                                    },
                                                     child: ListWidget(
                                                       title: _dataParams[0]['name'],
                                                       subTitle: _dataParams[0]['description'],
-                                                      trailing: Padding(
-                                                        padding: const EdgeInsets.only(right: 10),
-                                                        child: InkWell(
-                                                          onTap: () {
-                                                            // Navigator.push(
-                                                            //     context,
-                                                            //     MaterialPageRoute(
-                                                            //         builder:
-                                                            //             (context) =>
-                                                            //                 EditLocationPage(
-                                                            //                   clientID:
-                                                            //                       clientData.id,
-                                                            //                   name:
-                                                            //                       data[index].name,
-                                                            //                   description:
-                                                            //                       data[index].description,
-                                                            //                   locatoionId:
-                                                            //                       data[index].sampleLocationId,
-                                                            //                 ),),);
-                                                          },
-                                                          child: Icon(
-                                                            Icons.edit,
-                                                            color: CustomColors.mainDarkGreen,
-                                                          ),
-                                                        ),
-                                                      ),
                                                     ),
                                                   );
                                                 } else if (snapshot.connectionState == ConnectionState.waiting) {

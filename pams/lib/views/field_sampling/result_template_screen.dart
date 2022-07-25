@@ -280,53 +280,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                               ],
                             ),
                           ),
-                          StatefulBuilder(builder: ((context, setState) {
-                            return InkWell(
-                              onTap: () async {
-                                _sampleProvider.templateIndex == 0
-                                    ? runDPRSingles(index: index, Id: data.id!, DPRFieldId: data.dprFieldId!)
-                                    : _sampleProvider.templateIndex == 1
-                                        ? runFMENVSingles(index: index, Id: data.id!, FMEnvFieldId: data.fmenvFieldId!)
-                                        : runNESREASingles(index: index, Id: data.id!, NesreaFieldId: data.nesreaFieldId!);
-
-                                // setState(
-                                //   () {
-                                //     update = index;
-                                //   },
-                                // );
-                                // int i = index;
-                                // print('object');
-                                // _clientProvider.runEachDPRTest(
-                                //     Id: data.id!,
-                                //     DPRFieldId: data.dprFieldId!,
-                                //     TestLimit: textLimitControllers[i].text,
-                                //     TestResult: textResultControllers[i].text);
-                                // setState(
-                                //   () {
-                                //     update = -1;
-                                //   },
-                                // );
-                              },
-                              child: CircleAvatar(
-                                radius: 15,
-                                backgroundColor: CustomColors.mainDarkGreen,
-                                child: Center(
-                                    child: update == index
-                                        ? SizedBox(
-                                            height: 10,
-                                            width: 10,
-                                            child: CircularProgressIndicator(
-                                              color: CustomColors.background,
-                                            ),
-                                          )
-                                        : Icon(
-                                            Icons.check,
-                                            color: CustomColors.background,
-                                            size: 13,
-                                          )),
-                              ),
-                            );
-                          }))
                         ],
                       ),
                     ),
