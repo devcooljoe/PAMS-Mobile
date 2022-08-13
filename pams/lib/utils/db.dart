@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:sqflite/sqflite.dart';
 
 class PamsDatabase {
@@ -104,7 +106,7 @@ class DPRTestTemplateData extends PamsDatabase {
   static var db = PamsDatabase.init();
   static Future insert(int dataId, Map<String, dynamic> data) async {
     db.then(
-      (database) async => await database.rawInsert('INSERT INTO DPRTestTemplateData(dataId, samplePtId, DPRFieldId, Latitude, Longitude, DPRTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['DPRFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['DPRTemplates']}", "${data['Picture']}")'),
+      (database) async => await database.rawInsert('INSERT INTO DPRTestTemplateData(dataId, samplePtId, DPRFieldId, Latitude, Longitude, DPRTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['DPRFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${json.encode(data['DPRTemplates'])}", "${data['Picture']}")'),
     );
   }
 
@@ -126,7 +128,7 @@ class FMENVTestTemplateData extends PamsDatabase {
   static var db = PamsDatabase.init();
   static Future insert(int dataId, Map<String, dynamic> data) async {
     db.then(
-      (database) async => await database.rawInsert('INSERT INTO FMENVTestTemplateData(dataId, samplePtId, FMENVFieldId, Latitude, Longitude, FMENVTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['FMENVFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['FMENVTemplates']}", "${data['Picture']}")'),
+      (database) async => await database.rawInsert('INSERT INTO FMENVTestTemplateData(dataId, samplePtId, FMENVFieldId, Latitude, Longitude, FMENVTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['FMENVFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${json.encode(data['FMENVTemplates'])}", "${data['Picture']}")'),
     );
   }
 
@@ -148,7 +150,7 @@ class NESREATestTemplateData extends PamsDatabase {
   static var db = PamsDatabase.init();
   static Future insert(int dataId, Map<String, dynamic> data) async {
     db.then(
-      (database) async => await database.rawInsert('INSERT INTO NESREATestTemplateData(dataId, samplePtId, NESREAFieldId, Latitude, Longitude, NESREATemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['NESREAFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['NESREATemplates']}", "${data['Picture']}")'),
+      (database) async => await database.rawInsert('INSERT INTO NESREATestTemplateData(dataId, samplePtId, NESREAFieldId, Latitude, Longitude, NESREATemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['NESREAFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${json.encode(data['NESREATemplates'])}", "${data['Picture']}")'),
     );
   }
 

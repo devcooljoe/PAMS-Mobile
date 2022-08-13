@@ -22,7 +22,11 @@ class SynchronizeData extends ApiManager {
       clientLocations.forEach((clientLocation) async {
         var clientLocationData = await ClientLocationData.fetch(clientLocation['id'].toString());
         var response = await clientService.addClientLocation(
-          AddLocationRequestModel(clientId: clientLocationData[0]['clientId'], name: clientLocationData[0]['name'], description: clientLocationData[0]['description']),
+          AddLocationRequestModel(
+            clientId: clientLocationData[0]['clientId'],
+            name: clientLocationData[0]['name'],
+            description: clientLocationData[0]['description'],
+          ),
         );
         if (response!.status == true) {
           await PamsDatabase.delete(db, clientLocation['id']);
@@ -37,7 +41,6 @@ class SynchronizeData extends ApiManager {
     if (dprTestTemplates.length > 0) {
       dprTestTemplates.forEach((dprTestTemplate) async {
         var dprTestTemplateData = await DPRTestTemplateData.fetch(dprTestTemplate['id'].toString());
-
         var response = await clientService.submitDPRTestTemplate(
           samplePtId: int.parse(dprTestTemplateData[0]['samplePtId']),
           DPRFieldId: int.parse(dprTestTemplateData[0]['DPRFieldId']),
@@ -59,7 +62,6 @@ class SynchronizeData extends ApiManager {
     if (fmenvTestTemplates.length > 0) {
       fmenvTestTemplates.forEach((fmenvTestTemplate) async {
         var fmenvTestTemplateData = await FMENVTestTemplateData.fetch(fmenvTestTemplate['id'].toString());
-
         var response = await clientService.submitFMENVTestTemplate(
           samplePtId: int.parse(fmenvTestTemplateData[0]['samplePtId']),
           FMEnvFieldId: int.parse(fmenvTestTemplateData[0]['FMENVFieldId']),
@@ -81,7 +83,6 @@ class SynchronizeData extends ApiManager {
     if (nesreaTestTemplates.length > 0) {
       nesreaTestTemplates.forEach((nesreaTestTemplate) async {
         var nesreaTestTemplateData = await NESREATestTemplateData.fetch(nesreaTestTemplate['id'].toString());
-
         var response = await clientService.submitNESREATestTemplate(
           samplePtId: int.parse(nesreaTestTemplateData[0]['samplePtId']),
           NesreaFieldId: int.parse(nesreaTestTemplateData[0]['NESREAFieldId']),

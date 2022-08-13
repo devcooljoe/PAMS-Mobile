@@ -39,7 +39,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
 
-  takePhoto(ImageSource source, cxt) async {
+  takePhoto(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source, imageQuality: 50, maxHeight: 500.0, maxWidth: 500.0);
     setState(() {
       _image = pickedFile;
@@ -48,6 +48,8 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
 
     // Navigator.pop(cxt);
   }
+
+  // var storage = GetStorage();
 
   List<TextEditingController> textResultControllers = [];
   List<TextEditingController> textLimitControllers = [];
@@ -86,15 +88,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   Widget build(BuildContext context) {
     var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
     var _sampleProvider = ref.watch(categoryViewModel);
-
-    var length = _sampleProvider.templateIndex == 0
-        ? clientData.samplePointLocations![widget.samplePointIndex!].dprSamples!.dprSamples!.length
-        : _sampleProvider.templateIndex == 1
-            ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples!.length
-            : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples!.length;
-
-    List<String> textResultValues = List.generate(length, (index) => '');
-    List<String> textLimitValues = List.generate(length, (index) => '');
 
     return Scaffold(
       appBar: AppBar(
@@ -205,16 +198,15 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                       ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples!.length
                       : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples!.length,
               itemBuilder: ((context, index) {
-                textResultControllers.add(TextEditingController());
-                textLimitControllers.add(TextEditingController());
                 var data = _sampleProvider.templateIndex == 0
                     ? clientData.samplePointLocations![widget.samplePointIndex!].dprSamples!.dprSamples![index]
                     : _sampleProvider.templateIndex == 1
                         ? clientData.samplePointLocations![widget.samplePointIndex!].fmenvSamples!.fmenvSamples![index]
                         : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples![index];
-
-                textLimitControllers[index].text = data.testLimit!;
-                textResultControllers[index].text = data.testResult!;
+                textResultControllers.add(TextEditingController(text: data.testResult!));
+                textLimitControllers.add(TextEditingController(text: data.testLimit!));
+                // textLimitControllers[index].text = data.testLimit!;
+                // textResultControllers[index].text = data.testResult!;
 
                 return Padding(
                   padding: const EdgeInsets.only(right: 10, left: 10, bottom: 15),
@@ -252,10 +244,10 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                           SizedBox(
                                             width: 100,
                                             child: TextField(
-                                              onChanged: (value) {
-                                                textLimitValues[index] = value;
-                                              },
-                                              // controller: textLimitControllers[index],
+                                              // onChanged: (String value) {
+                                              //   storage.write('textLimitValue$index', value);
+                                              // },
+                                              controller: textLimitControllers[index],
                                               decoration: InputDecoration(hintText: data.testLimit, contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 5), border: OutlineInputBorder(borderSide: BorderSide())),
                                             ),
                                           ),
@@ -265,10 +257,10 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                           SizedBox(
                                             width: 100,
                                             child: TextField(
-                                              onChanged: (value) {
-                                                textResultValues[index] = value;
-                                              },
-                                              // controller: textResultControllers[index],
+                                              // onChanged: (String value) {
+                                              //   storage.write('textResultValue$index', value);
+                                              // },
+                                              controller: textResultControllers[index],
                                               decoration: InputDecoration(contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 5), border: OutlineInputBorder(borderSide: BorderSide())),
                                             ),
                                           ),
@@ -291,7 +283,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
           ),
           InkWell(
             onTap: () async {
-              await takePhoto(ImageSource.camera, context);
+              await takePhoto(ImageSource.camera);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
