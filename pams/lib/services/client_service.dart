@@ -140,11 +140,18 @@ class ClientServiceImplementation extends ApiManager {
     required dynamic TestResult,
   }) async {
     var token = box.read('token');
-    var postObj = {'Id': Id, 'DPRFieldId': DPRFieldId, 'TestLimit': TestLimit, 'TestResult': TestResult};
-    final response = await postHttp(addDPRTestForEach, postObj, token: token, formdata: true);
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      var postObj = {'Id': Id, 'DPRFieldId': DPRFieldId, 'TestLimit': TestLimit, 'TestResult': TestResult};
+      final response = await postHttp(addDPRTestForEach, postObj, token: token, formdata: true);
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await EachTestData.insert(Id, DPRFieldId, null, null, TestLimit, TestResult, '1');
+      Fluttertoast.showToast(msg: 'DPR Test stored locally');
       return RunSimpleTestResponseModel(status: false);
     }
   }
@@ -152,6 +159,7 @@ class ClientServiceImplementation extends ApiManager {
   //submit DPR Template
   Future<RunSimpleTestResponseModel> submitDPRTestTemplate({required int samplePtId, required int DPRFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic DPRTemplates, required String Picture}) async {
     var token = box.read('token');
+    print(DPRTemplates);
     await ConnectionStatus.update();
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       String fileName = Picture.split('/').last;
@@ -180,16 +188,22 @@ class ClientServiceImplementation extends ApiManager {
     required dynamic TestResult,
   }) async {
     var token = box.read('token');
-    var postObj = {};
-
-    final response = await postHttp(
-      addFMENVTestForEach + '?Id=$Id&FMEnvFieldId=$FMEnvFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
-      postObj,
-      token: token,
-    );
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      var postObj = {};
+      final response = await postHttp(
+        addFMENVTestForEach + '?Id=$Id&FMEnvFieldId=$FMEnvFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
+        postObj,
+        token: token,
+      );
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await EachTestData.insert(Id, null, FMEnvFieldId, null, TestLimit, TestResult, '2');
+      Fluttertoast.showToast(msg: 'FMENV Test stored locally');
       return RunSimpleTestResponseModel(status: false);
     }
   }
@@ -225,16 +239,22 @@ class ClientServiceImplementation extends ApiManager {
     required dynamic TestResult,
   }) async {
     var token = box.read('token');
-    var postObj = {};
-
-    final response = await postHttp(
-      addNesreaTestForEach + '?Id=$Id&NesreaFieldId=$NesreaFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
-      postObj,
-      token: token,
-    );
-    if (response.responseCodeError == null) {
-      return RunSimpleTestResponseModel.fromJson(response.data);
+    await ConnectionStatus.update();
+    if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
+      var postObj = {};
+      final response = await postHttp(
+        addNesreaTestForEach + '?Id=$Id&NesreaFieldId=$NesreaFieldId&TestLimit=$TestLimit&TestResult=$TestResult',
+        postObj,
+        token: token,
+      );
+      if (response.responseCodeError == null) {
+        return RunSimpleTestResponseModel.fromJson(response.data);
+      } else {
+        return RunSimpleTestResponseModel(status: false);
+      }
     } else {
+      await EachTestData.insert(Id, null, null, NesreaFieldId, TestLimit, TestResult, '3');
+      Fluttertoast.showToast(msg: 'Nesrea Test stored locally');
       return RunSimpleTestResponseModel(status: false);
     }
   }

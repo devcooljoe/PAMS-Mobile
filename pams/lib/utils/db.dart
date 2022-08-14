@@ -13,9 +13,11 @@ class PamsDatabase {
         await db.execute("""CREATE TABLE 
         DPRTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, DPRFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, DPRTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
-        FMENVTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, FMENVFieldId VARCHAR NULL, Latitude VARCHAR NULL, FMENVTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        FMENVTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, FMENVFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, FMENVTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
-        NESREATestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, NESREAFieldId VARCHAR NULL, Latitude VARCHAR NULL, NESREATemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        NESREATestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, NESREAFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, NESREATemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        await db.execute("""CREATE TABLE 
+        EACHTest (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, DPRFieldId VARCHAR NULL, FMEnvFieldId VARCHAR NULL, NesreaFieldId VARCHAR NULL, TestLimit VARCHAR NULL, TestResult VARCHAR NULL, Category VARCHAR NULL)""");
       },
     );
     return db;
@@ -162,6 +164,36 @@ class NESREATestTemplateData extends PamsDatabase {
   static Future<void> delete(String dataId) async {
     db.then(
       (database) async => await database.rawDelete("DELETE FROM NESREATestTemplateData WHERE dataId = '$dataId'"),
+    );
+  }
+}
+
+class EachTestData extends PamsDatabase {
+  static var db = PamsDatabase.init();
+  static Future insert(
+    int Id,
+    int? DPRFieldId,
+    int? FMEnvFieldId,
+    int? NesreaFieldId,
+    dynamic TestLimit,
+    dynamic TestResult,
+    String Category,
+  ) async {
+    db.then(
+      (database) async => await database.rawInsert('INSERT INTO EACHTest(dataId, DPRFieldId, FMEnvFieldId, NesreaFieldId, TestLimit, TestResult, Category) VALUES("$Id", "$DPRFieldId", "$FMEnvFieldId", "$NesreaFieldId", "$TestLimit", "$TestResult", "$Category")'),
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> fetch() async {
+    var _db = await db;
+    var _result;
+    _result = await _db.rawQuery("SELECT * FROM EACHTest");
+    return _result;
+  }
+
+  static Future<void> delete(String dataId) async {
+    db.then(
+      (database) async => await database.rawDelete("DELETE FROM EACHTest WHERE dataId = '$dataId'"),
     );
   }
 }

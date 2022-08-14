@@ -207,7 +207,6 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                 textLimitControllers.add(TextEditingController(text: data.testLimit!));
                 // textLimitControllers[index].text = data.testLimit!;
                 // textResultControllers[index].text = data.testResult!;
-
                 return Padding(
                   padding: const EdgeInsets.only(right: 10, left: 10, bottom: 15),
                   child: Card(
@@ -245,7 +244,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                             width: 100,
                                             child: TextField(
                                               // onChanged: (String value) {
-                                              //   storage.write('textLimitValue$index', value);
+
                                               // },
                                               controller: textLimitControllers[index],
                                               decoration: InputDecoration(hintText: data.testLimit, contentPadding: EdgeInsets.symmetric(vertical: 13, horizontal: 5), border: OutlineInputBorder(borderSide: BorderSide())),
@@ -272,6 +271,53 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                               ],
                             ),
                           ),
+                          StatefulBuilder(builder: ((context, setState) {
+                            return InkWell(
+                              onTap: () async {
+                                _sampleProvider.templateIndex == 0
+                                    ? runDPRSingles(index: index, Id: data.id!, DPRFieldId: data.dprFieldId!)
+                                    : _sampleProvider.templateIndex == 1
+                                        ? runFMENVSingles(index: index, Id: data.id!, FMEnvFieldId: data.fmenvFieldId!)
+                                        : runNESREASingles(index: index, Id: data.id!, NesreaFieldId: data.nesreaFieldId!);
+
+                                // setState(
+                                //   () {
+                                //     update = index;
+                                //   },
+                                // );
+                                // int i = index;
+                                // print('object');
+                                // _clientProvider.runEachDPRTest(
+                                //     Id: data.id!,
+                                //     DPRFieldId: data.dprFieldId!,
+                                //     TestLimit: textLimitControllers[i].text,
+                                //     TestResult: textResultControllers[i].text);
+                                // setState(
+                                //   () {
+                                //     update = -1;
+                                //   },
+                                // );
+                              },
+                              child: CircleAvatar(
+                                radius: 15,
+                                backgroundColor: CustomColors.mainDarkGreen,
+                                child: Center(
+                                    child: update == index
+                                        ? SizedBox(
+                                            height: 10,
+                                            width: 10,
+                                            child: CircularProgressIndicator(
+                                              color: CustomColors.background,
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.check,
+                                            color: CustomColors.background,
+                                            size: 13,
+                                          )),
+                              ),
+                            );
+                          }))
                         ],
                       ),
                     ),
@@ -531,7 +577,7 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     setState(() {
       update = index;
     });
-    _clientProvider.runEachDPRTest(Id: Id, DPRFieldId: DPRFieldId, TestLimit: textLimitControllers[index], TestResult: textResultControllers[index]);
+    _clientProvider.runEachDPRTest(Id: Id, DPRFieldId: DPRFieldId, TestLimit: textLimitControllers[index].text, TestResult: textResultControllers[index].text);
     await Future.delayed(const Duration(seconds: 5), () async {
       _clientProvider.getAllClients();
       if (_clientProvider.runEachDPRData.data != null) {
@@ -555,13 +601,25 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
     var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].dprSamples!;
-
+    List<Sample> mainData = [];
+    for (var i = 0; i < 13; i++) {
+      mainData.add(
+        Sample.fromJson({
+          'testName': null,
+          'testUnit': null,
+          'testLimit': textLimitControllers[i].text,
+          'testResult': textResultControllers[i].text,
+          'id': null,
+        }),
+      );
+    }
+    List<Sample> mainDataReversed = List.from(mainData.reversed);
     _clientProvider.submitDPRTemplate(
       samplePtId: data.samplePointLocationId!,
       DPRFieldId: data.id!,
       Latitude: 233,
       Longitude: 332,
-      DPRTemplates: data.dprSamples,
+      DPRTemplates: mainDataReversed,
       Picture: _image!.path,
     );
 
@@ -615,13 +673,25 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
     var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].fmenvSamples!;
-
+    List<Sample> mainData = [];
+    for (var i = 0; i < 13; i++) {
+      mainData.add(
+        Sample.fromJson({
+          'testName': null,
+          'testUnit': null,
+          'testLimit': textLimitControllers[i].text,
+          'testResult': textResultControllers[i].text,
+          'id': null,
+        }),
+      );
+    }
+    List<Sample> mainDataReversed = List.from(mainData.reversed);
     _clientProvider.submitFmenvTemplate(
       samplePtId: data.samplePointLocationId!,
       FMEnvFieldId: data.id!,
       Latitude: 233,
       Longitude: 332,
-      FMENVTemplates: data.fmenvSamples,
+      FMENVTemplates: mainDataReversed,
       Picture: _image!.path,
     );
 
@@ -675,13 +745,25 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
     var _sampleProvider = ref.watch(categoryViewModel);
     var _clientProvider = ref.watch(clientViewModel);
     var data = _clientProvider.clientData.data!.returnObject![_sampleProvider.clientIndex!].samplePointLocations![widget.samplePointIndex!].nesreaSamples!;
-
+    List<Sample> mainData = [];
+    for (var i = 0; i < 13; i++) {
+      mainData.add(
+        Sample.fromJson({
+          'testName': null,
+          'testUnit': null,
+          'testLimit': textLimitControllers[i].text,
+          'testResult': textResultControllers[i].text,
+          'id': null,
+        }),
+      );
+    }
+    List<Sample> mainDataReversed = List.from(mainData.reversed);
     _clientProvider.submitNesreaTemplate(
       samplePtId: data.samplePointLocationId!,
       NesreaFieldId: data.id!,
       Latitude: 233,
       Longitude: 332,
-      NesreaTemplates: data.nesreaSamples,
+      NesreaTemplates: mainDataReversed,
       Picture: _image!.path,
     );
 

@@ -12,6 +12,7 @@ class SynchronizeData extends ApiManager {
     await syncDPRTestTemplate();
     await syncFMENVTestTemplate();
     await syncNESREATestTemplate();
+    await syncEACHTestData();
     Fluttertoast.showToast(msg: 'Data sync successful.');
   }
 
@@ -43,7 +44,7 @@ class SynchronizeData extends ApiManager {
         var dprTestTemplateData = await DPRTestTemplateData.fetch(dprTestTemplate['id'].toString());
         var response = await clientService.submitDPRTestTemplate(
           samplePtId: int.parse(dprTestTemplateData[0]['samplePtId']),
-          DPRFieldId: int.parse(dprTestTemplateData[0]['DPRFieldId']),
+          DPRFieldId: int.tryParse(dprTestTemplateData[0]['DPRFieldId']) ?? 0,
           Latitude: dprTestTemplateData[0]['Latitude'],
           Longitude: dprTestTemplateData[0]['Longitude'],
           DPRTemplates: dprTestTemplateData[0]['DPRTemplates'],
@@ -64,7 +65,7 @@ class SynchronizeData extends ApiManager {
         var fmenvTestTemplateData = await FMENVTestTemplateData.fetch(fmenvTestTemplate['id'].toString());
         var response = await clientService.submitFMENVTestTemplate(
           samplePtId: int.parse(fmenvTestTemplateData[0]['samplePtId']),
-          FMEnvFieldId: int.parse(fmenvTestTemplateData[0]['FMENVFieldId']),
+          FMEnvFieldId: int.tryParse(fmenvTestTemplateData[0]['FMENVFieldId']) ?? 0,
           Latitude: fmenvTestTemplateData[0]['Latitude'],
           Longitude: fmenvTestTemplateData[0]['Longitude'],
           FMENVTemplates: fmenvTestTemplateData[0]['FMENVTemplates'],
@@ -85,7 +86,7 @@ class SynchronizeData extends ApiManager {
         var nesreaTestTemplateData = await NESREATestTemplateData.fetch(nesreaTestTemplate['id'].toString());
         var response = await clientService.submitNESREATestTemplate(
           samplePtId: int.parse(nesreaTestTemplateData[0]['samplePtId']),
-          NesreaFieldId: int.parse(nesreaTestTemplateData[0]['NESREAFieldId']),
+          NesreaFieldId: int.tryParse(nesreaTestTemplateData[0]['NESREAFieldId']) ?? 0,
           Latitude: nesreaTestTemplateData[0]['Latitude'],
           Longitude: nesreaTestTemplateData[0]['Longitude'],
           NesreaTemplates: nesreaTestTemplateData[0]['NESREATemplates'],
@@ -93,6 +94,48 @@ class SynchronizeData extends ApiManager {
         );
         if (response.status == true) {
           await PamsDatabase.delete(db, nesreaTestTemplate['id']);
+        }
+      });
+    }
+  }
+
+  static Future syncEACHTestData() async {
+    var eachTestData = await EachTestData.fetch();
+    if (eachTestData.length > 0) {
+      eachTestData.forEach((data) async {
+        switch (data['Category']) {
+          case '3':
+            var response = await clientService.runEACHNESREATest(
+              Id: int.parse(data['dataId']),
+              NesreaFieldId: int.parse(data['NesreaFieldId']),
+              TestLimit: data['TestLimit'],
+              TestResult: data['TestResult'],
+            );
+            if (response.status == true) {
+              await EachTestData.delete(data['dataId']);
+            }
+            break;
+          case '2':
+            var response = await clientService.runEACHFMENVTest(
+              Id: int.parse(data['dataId']),
+              FMEnvFieldId: int.parse(data['FMEnvFieldId']),
+              TestLimit: data['TestLimit'],
+              TestResult: data['TestResult'],
+            );
+            if (response.status == true) {
+              await EachTestData.delete(data['dataId']);
+            }
+            break;
+          default:
+            var response = await clientService.runEACHDPRTest(
+              Id: int.parse(data['dataId']),
+              DPRFieldId: int.parse(data['DPRFieldId']),
+              TestLimit: data['TestLimit'],
+              TestResult: data['TestResult'],
+            );
+            if (response.status == true) {
+              await EachTestData.delete(data['dataId']);
+            }
         }
       });
     }
