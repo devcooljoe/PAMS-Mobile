@@ -159,7 +159,6 @@ class ClientServiceImplementation extends ApiManager {
   //submit DPR Template
   Future<RunSimpleTestResponseModel> submitDPRTestTemplate({required int samplePtId, required int DPRFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic DPRTemplates, required String Picture}) async {
     var token = box.read('token');
-    print(DPRTemplates);
     await ConnectionStatus.update();
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       String fileName = Picture.split('/').last;
@@ -212,6 +211,7 @@ class ClientServiceImplementation extends ApiManager {
   Future<RunSimpleTestResponseModel> submitFMENVTestTemplate({required int samplePtId, required int FMEnvFieldId, required dynamic Latitude, required dynamic Longitude, required dynamic FMENVTemplates, required String Picture}) async {
     var token = box.read('token');
     await ConnectionStatus.update();
+
     if (_controller.connectionStatus.value && !_controller.offlinePoint.value) {
       String fileName = Picture.split('/').last;
       var _picture = await multipart.MultipartFile.fromFile(Picture, filename: fileName, contentType: MediaType('image', 'jpg'));

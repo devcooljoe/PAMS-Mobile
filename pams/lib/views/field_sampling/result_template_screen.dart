@@ -50,7 +50,8 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
   }
 
   // var storage = GetStorage();
-
+  List<RxBool> sendBtnIsClicked = [];
+  List<RxBool> sendBtnIsLoaded = [];
   List<TextEditingController> textResultControllers = [];
   List<TextEditingController> textLimitControllers = [];
 
@@ -205,6 +206,8 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                         : clientData.samplePointLocations![widget.samplePointIndex!].nesreaSamples!.nesreaSamples![index];
                 textResultControllers.add(TextEditingController(text: data.testResult!));
                 textLimitControllers.add(TextEditingController(text: data.testLimit!));
+                sendBtnIsClicked.add(false.obs);
+                sendBtnIsLoaded.add(false.obs);
                 // textLimitControllers[index].text = data.testLimit!;
                 // textResultControllers[index].text = data.testResult!;
                 return Padding(
@@ -272,50 +275,59 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                             ),
                           ),
                           StatefulBuilder(builder: ((context, setState) {
+                            if (sendBtnIsClicked[index].value && update != index) {
+                              sendBtnIsLoaded[index].value = true;
+                            }
                             return InkWell(
-                              onTap: () async {
-                                _sampleProvider.templateIndex == 0
-                                    ? runDPRSingles(index: index, Id: data.id!, DPRFieldId: data.dprFieldId!)
-                                    : _sampleProvider.templateIndex == 1
-                                        ? runFMENVSingles(index: index, Id: data.id!, FMEnvFieldId: data.fmenvFieldId!)
-                                        : runNESREASingles(index: index, Id: data.id!, NesreaFieldId: data.nesreaFieldId!);
+                              onTap: sendBtnIsLoaded[index].value
+                                  ? null
+                                  : () async {
+                                      _sampleProvider.templateIndex == 0
+                                          ? runDPRSingles(index: index, Id: data.id!, DPRFieldId: data.dprFieldId!)
+                                          : _sampleProvider.templateIndex == 1
+                                              ? runFMENVSingles(index: index, Id: data.id!, FMEnvFieldId: data.fmenvFieldId!)
+                                              : runNESREASingles(index: index, Id: data.id!, NesreaFieldId: data.nesreaFieldId!);
+                                      sendBtnIsClicked[index].value = true;
 
-                                // setState(
-                                //   () {
-                                //     update = index;
-                                //   },
-                                // );
-                                // int i = index;
-                                // print('object');
-                                // _clientProvider.runEachDPRTest(
-                                //     Id: data.id!,
-                                //     DPRFieldId: data.dprFieldId!,
-                                //     TestLimit: textLimitControllers[i].text,
-                                //     TestResult: textResultControllers[i].text);
-                                // setState(
-                                //   () {
-                                //     update = -1;
-                                //   },
-                                // );
-                              },
-                              child: CircleAvatar(
-                                radius: 15,
-                                backgroundColor: CustomColors.mainDarkGreen,
-                                child: Center(
-                                    child: update == index
-                                        ? SizedBox(
-                                            height: 10,
-                                            width: 10,
-                                            child: CircularProgressIndicator(
+                                      // setState(
+                                      //   () {
+                                      //     update = index;
+                                      //   },
+                                      // );
+                                      // int i = index;
+                                      // print('object');
+                                      // _clientProvider.runEachDPRTest(
+                                      //     Id: data.id!,
+                                      //     DPRFieldId: data.dprFieldId!,
+                                      //     TestLimit: textLimitControllers[i].text,
+                                      //     TestResult: textResultControllers[i].text);
+                                      // setState(
+                                      //   () {
+                                      //     update = -1;
+                                      //   },
+                                      // );
+                                    },
+                              child: Obx(() {
+                                return CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: sendBtnIsLoaded[index].value ? Colors.grey : CustomColors.mainDarkGreen,
+                                  child: Center(
+                                      child: update == index
+                                          ? SizedBox(
+                                              height: 10,
+                                              width: 10,
+                                              child: CircularProgressIndicator(
+                                                color: CustomColors.background,
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : Icon(
+                                              Icons.check,
                                               color: CustomColors.background,
-                                            ),
-                                          )
-                                        : Icon(
-                                            Icons.check,
-                                            color: CustomColors.background,
-                                            size: 13,
-                                          )),
-                              ),
+                                              size: 13,
+                                            )),
+                                );
+                              }),
                             );
                           }))
                         ],
@@ -437,6 +449,13 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                     widget.samplePointName = clientData.samplePointLocations![index].name!;
                                     widget.samplePointId = clientData.samplePointLocations![index].sampleLocationId!;
                                   });
+                                  setState(() {
+                                    textLimitControllers = [];
+                                    textResultControllers = [];
+                                    sendBtnIsClicked = [];
+                                    sendBtnIsLoaded = [];
+                                    _image = null;
+                                  });
                                   Navigator.pop(context);
                                 }),
                                 title: Text(
@@ -533,6 +552,13 @@ class _ResultTemplatePageState extends ConsumerState<ResultTemplatePage> {
                                   _sampleProvider.categoryCode = sampleTemplates[index];
 
                                   _sampleProvider.templateIndex = index;
+                                });
+                                setState(() {
+                                  textLimitControllers = [];
+                                  textResultControllers = [];
+                                  sendBtnIsClicked = [];
+                                  sendBtnIsLoaded = [];
+                                  _image = null;
                                 });
 
                                 Navigator.of(context).pop();

@@ -11,11 +11,11 @@ class PamsDatabase {
         await db.execute("""CREATE TABLE 
         ClientLocationData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, clientId VARCHAR NULL, name VARCHAR NULL, description VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
-        DPRTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, DPRFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, DPRTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        DPRTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, DPRFieldId VARCHAR NOT NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, DPRTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
-        FMENVTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, FMENVFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, FMENVTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        FMENVTestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, FMENVFieldId VARCHAR NOT NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, FMENVTemplates VARCHAR NULL, Picture VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
-        NESREATestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, NESREAFieldId VARCHAR NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, NESREATemplates VARCHAR NULL, Picture VARCHAR NULL)""");
+        NESREATestTemplateData (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, samplePtId VARCHAR NULL, NESREAFieldId VARCHAR NOT NULL, Latitude VARCHAR NULL, Longitude VARCHAR NULL, NESREATemplates VARCHAR NULL, Picture VARCHAR NULL)""");
         await db.execute("""CREATE TABLE 
         EACHTest (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, dataId VARCHAR NULL, DPRFieldId VARCHAR NULL, FMEnvFieldId VARCHAR NULL, NesreaFieldId VARCHAR NULL, TestLimit VARCHAR NULL, TestResult VARCHAR NULL, Category VARCHAR NULL)""");
       },
@@ -128,7 +128,7 @@ class FMENVTestTemplateData extends PamsDatabase {
   static var db = PamsDatabase.init();
   static Future insert(int dataId, Map<String, dynamic> data) async {
     db.then(
-      (database) async => await database.rawInsert('INSERT INTO FMENVTestTemplateData(dataId, samplePtId, FMENVFieldId, Latitude, Longitude, FMENVTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['FMENVFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['FMENVTemplates']}", "${data['Picture']}")'),
+      (database) async => await database.rawInsert('INSERT INTO FMENVTestTemplateData(dataId, samplePtId, FMENVFieldId, Latitude, Longitude, FMENVTemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['FMEnvFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['FMENVTemplates']}", "${data['Picture']}")'),
     );
   }
 
@@ -150,7 +150,7 @@ class NESREATestTemplateData extends PamsDatabase {
   static var db = PamsDatabase.init();
   static Future insert(int dataId, Map<String, dynamic> data) async {
     db.then(
-      (database) async => await database.rawInsert('INSERT INTO NESREATestTemplateData(dataId, samplePtId, NESREAFieldId, Latitude, Longitude, NESREATemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['NESREAFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['NESREATemplates']}", "${data['Picture']}")'),
+      (database) async => await database.rawInsert('INSERT INTO NESREATestTemplateData(dataId, samplePtId, NESREAFieldId, Latitude, Longitude, NESREATemplates, Picture) VALUES("$dataId", "${data['samplePtId']}", "${data['NesreaFieldId']}", "${data['Latitude']}", "${data['Longitude']}", "${data['NesreaTemplates']}", "${data['Picture']}")'),
     );
   }
 
