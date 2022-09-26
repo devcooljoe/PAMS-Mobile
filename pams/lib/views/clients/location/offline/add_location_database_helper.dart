@@ -26,7 +26,7 @@ class LocationDataBaseHelper {
       id INTEGER PRIMARY KEY,
       name TEXT,
       description TEXT,
-      clientId TEXT,
+      clientId TEXT
     )
     ''');
   }

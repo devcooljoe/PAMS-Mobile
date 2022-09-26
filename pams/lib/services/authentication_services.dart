@@ -1,18 +1,14 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pams/http/api_manager.dart';
 import 'package:pams/models/login_response_model.dart';
 
 class AuthServiceImplementation extends ApiManager {
-  final Reader reader;
   GetStorage box = GetStorage();
 
   final loginURl = '/Account/SignIn';
-  AuthServiceImplementation(this.reader) : super(reader);
 
   //sign in user
-  Future<LoginResponseModel> userLogin(
-      {required String? email,required String? password}) async {
+  Future<LoginResponseModel> userLogin({required String? email, required String? password}) async {
     var body = {
       'email': email,
       'password': password,
@@ -22,7 +18,6 @@ class AuthServiceImplementation extends ApiManager {
       loginURl,
       body,
     );
-    print(response.data);
 
     if (response.responseCodeError == null) {
       return LoginResponseModel.fromJson(response.data);

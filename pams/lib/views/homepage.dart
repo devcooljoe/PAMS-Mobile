@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,7 +8,10 @@ import 'package:pams/providers/auth_provider.dart';
 import 'package:pams/providers/clients_data_provider.dart';
 import 'package:pams/providers/provider_services.dart';
 import 'package:pams/styles/custom_colors.dart';
+import 'package:pams/utils/connection_status.dart';
+import 'package:pams/utils/controller.dart';
 import 'package:pams/utils/images.dart';
+import 'package:pams/utils/sync.dart';
 import 'package:pams/views/clients/customerList.dart';
 import 'package:pams/views/profile/profile.dart';
 import 'package:pams/views/report/view_test_reports.dart';
@@ -24,6 +29,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+    if (_controller.connectionStatus.value) {
+      SynchronizeData.init();
+    }
   }
 
   @override
@@ -34,6 +42,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     super.didChangeDependencies();
   }
 
+  PamsStateController _controller = Get.put(PamsStateController());
   GetStorage userdata = GetStorage();
   Future<bool> _onWillPop() async {
     return (await showDialog(
@@ -59,6 +68,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
   bool check = false;
   @override
   Widget build(BuildContext context) {
+    Timer.periodic(Duration(seconds: 5), (t) {
+      ConnectionStatus.update();
+    });
     var _authViewModel = ref.watch(authViewModel);
     var _clientViewModel = ref.watch(clientViewModel);
     var _phoneMode = ref.watch(appMode.state);
@@ -71,7 +83,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 child: SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               )
             : ListView(
@@ -80,13 +92,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height / 3.0,
-                    decoration: BoxDecoration(
-                        color: CustomColors.mainDarkGreen,
-                        image: DecorationImage(
-                            fit: BoxFit.fill, image: AssetImage(homeViewIcon)),
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(30),
-                            bottomRight: Radius.circular(30))),
+                    decoration: BoxDecoration(color: CustomColors.mainDarkGreen, image: DecorationImage(fit: BoxFit.fill, image: AssetImage(homeViewIcon)), borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30))),
                     child: Container(
                       margin: EdgeInsets.fromLTRB(15, 20, 15, 0),
                       child: Column(
@@ -112,27 +118,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               children: <Widget>[
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Hello',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                            fontSize: 20)),
-                                    Text(userdata.read('name'),
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 17))
-                                  ],
+                                  children: [Text('Hello', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black, fontSize: 20)), Text(userdata.read('name'), style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17))],
                                 ),
                                 SizedBox(width: 10.w),
                                 Container(
                                   height: 80.w,
                                   width: 60.w,
                                   decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: AssetImage(userAvatar)),
+                                      image: DecorationImage(fit: BoxFit.cover, image: AssetImage(userAvatar)),
                                       border: Border.all(
                                         color: Colors.white,
                                         style: BorderStyle.solid,
@@ -157,35 +150,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       children: [
                         Text(
                           'My Tasks',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 19.sp,
-                              fontWeight: FontWeight.w500),
+                          style: TextStyle(color: Colors.black, fontSize: 19.sp, fontWeight: FontWeight.w500),
                         ),
                         Container(
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                      spreadRadius: 0.3,
-                                      offset: Offset(0.4, 0.6),
-                                      blurRadius: 1,
-                                      color: CustomColors.grey.withOpacity(0.5))
-                                ],
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(7)),
+                            decoration: BoxDecoration(boxShadow: [BoxShadow(spreadRadius: 0.3, offset: Offset(0.4, 0.6), blurRadius: 1, color: CustomColors.grey.withOpacity(0.5))], color: Colors.grey.shade200, borderRadius: BorderRadius.circular(7)),
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 0, bottom: 0),
-                              child: Switch(
-                                  activeColor: CustomColors.mainDarkGreen,
-                                  value: _phoneMode.state,
-                                  onChanged: (value) {
-                                    final isObs = ref
-                                        .watch(passwordObscureProvider.state);
-                                    setState(() {
-                                      _phoneMode.state = !_phoneMode.state;
-                                    });
-                                  }),
+                              padding: const EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 0),
+                              child: Obx(() {
+                                return AnimatedSwitcher(
+                                  duration: Duration(milliseconds: 1000),
+                                  child: Switch(
+                                      activeColor: CustomColors.mainDarkGreen,
+                                      value: _controller.connectionStatus.value,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _phoneMode.state = !_phoneMode.state;
+                                        });
+                                      }),
+                                );
+                              }),
                             ))
                       ],
                     ),
@@ -215,10 +198,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'What do you want to do today?',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w500),
+                      style: TextStyle(color: Colors.black, fontSize: 16.sp, fontWeight: FontWeight.w500),
                     ),
                   ),
                   SizedBox(height: 50.h),
@@ -235,35 +215,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           child: Container(
                             height: MediaQuery.of(context).size.height / 5,
                             width: MediaQuery.of(context).size.width / 2.5,
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    spreadRadius: 2,
-                                    blurRadius: 1,
-                                    offset: Offset(
-                                        0, 0.5), // changes position of shadow
-                                  ),
-                                ],
-                                color: CustomColors.Darkblue,
-                                borderRadius: BorderRadius.circular(25)),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset('assets/svgs/sampling.svg'),
-                                  SizedBox(
-                                    height: 10.h,
-                                  ),
-                                  Center(
-                                      child: Text(
-                                    'Sampling',
-                                    style: TextStyle(
-                                        color: CustomColors.background,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.w500),
-                                  ))
-                                ]),
+                            decoration: BoxDecoration(boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 1,
+                                offset: Offset(0, 0.5), // changes position of shadow
+                              ),
+                            ], color: CustomColors.Darkblue, borderRadius: BorderRadius.circular(25)),
+                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                              SvgPicture.asset('assets/svgs/sampling.svg'),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              Center(
+                                  child: Text(
+                                'Sampling',
+                                style: TextStyle(color: CustomColors.background, fontSize: 18.sp, fontWeight: FontWeight.w500),
+                              ))
+                            ]),
                           ),
                         ),
                         InkWell(
@@ -271,39 +241,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
                             _clientViewModel.getDPRResultActivityData();
                             _clientViewModel.getFMENVResultActivityData();
                             _clientViewModel.getNESREAResultActivityData();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ReportPage()));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReportPage()));
                           },
                           child: Container(
                             height: MediaQuery.of(context).size.height / 5,
                             width: MediaQuery.of(context).size.width / 2.5,
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    spreadRadius: 2,
-                                    blurRadius: 1,
-                                    offset: Offset(
-                                        0, 0.5), // changes position of shadow
-                                  ),
-                                ],
-                                color: CustomColors.mainDarkOrange,
-                                borderRadius: BorderRadius.circular(25)),
-                            child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset('assets/svgs/report.svg'),
-                                  SizedBox(
-                                    height: 10.h,
-                                  ),
-                                  Center(
-                                      child: Text('Report',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18.sp,
-                                              fontWeight: FontWeight.w500)))
-                                ]),
+                            decoration: BoxDecoration(boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 1,
+                                offset: Offset(0, 0.5), // changes position of shadow
+                              ),
+                            ], color: CustomColors.mainDarkOrange, borderRadius: BorderRadius.circular(25)),
+                            child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
+                              SvgPicture.asset('assets/svgs/report.svg'),
+                              SizedBox(
+                                height: 10.h,
+                              ),
+                              Center(child: Text('Report', style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.w500)))
+                            ]),
                           ),
                         )
                       ],
@@ -315,8 +272,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
-  Widget myTaskWidget(
-      String title, IconData icon, String subTitle, Color iconBGColor) {
+  Widget myTaskWidget(String title, IconData icon, String subTitle, Color iconBGColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -324,8 +280,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           Container(
               height: 20.w,
               width: 20.w,
-              decoration:
-                  BoxDecoration(color: iconBGColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: iconBGColor, shape: BoxShape.circle),
               child: Icon(
                 icon,
                 color: Colors.white,
@@ -353,4 +308,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+
+  // Future addLocation() async {
+  //   var _clientViewmodel = ref.watch(clientViewModel);
+  //   var clientData = ModalRoute.of(context)?.settings.arguments as CustomerReturnObject;
+  //   Future<Database> db = PamsDatabase.init();
+  //   var _list = PamsDatabase.fetch(db, 'addClientLocation');
+  //   _list.then((value) {
+  //     AddLocationRequestModel model = AddLocationRequestModel(
+  //       clientId: clientData.id,
+  //       name: value[0]['name'],
+  //       description: description.text,
+  //     );
+  //     _clientViewmodel.addClientLocation(model: model);
+  //   });
+  // }
 }
